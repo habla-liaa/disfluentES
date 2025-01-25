@@ -25,7 +25,6 @@ def cut_word(word: spacy.tokens.Doc) -> str:
     return new_word
 
 
-@gin.configurable
 def insert_filler(sentence: str, fillers: list) -> str:
     """Insert a filler word at a random position in the sentence."""
     if not sentence:
@@ -41,20 +40,17 @@ def insert_filler(sentence: str, fillers: list) -> str:
     return ' '.join(words)
 
 
-@gin.configurable
-def repeat_word(sentence: str, pos_tag: dict) -> tuple[str, bool]:
-    """Repeat a word in the sentence based on its POS tag."""
+def repeat_words(sentence: str, idx: int, order: int) -> str:
+    """Repeat a word in the sentence based on its index."""  
     words = sentence.split()
     if not words:
-        return sentence, False
-        
-    # Select word based on POS tag probabilities
-    word_idx = random.randint(0, len(words)-1)
-    word_to_repeat = words[word_idx]
+        return sentence
     
-    # Insert immediately before
-    words.insert(word_idx, word_to_repeat)
-    return ' '.join(words), True
+    words_to_repeat = words[idx:idx+order]
+    for i in range(order):
+        words.insert(idx, words_to_repeat[-i-1])
+
+    return ' '.join(words)
 
 
 @gin.configurable

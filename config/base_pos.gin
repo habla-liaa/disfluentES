@@ -76,6 +76,12 @@ SpanishDisfluencyGenerator.rep_pos_probs = {
     'DET': 0.1
 }
 
+SpanishDisfluencyGenerator.rep_order_probs = {
+    1: 0.5,
+    2: 0.5 
+}
+
+
 SpanishDisfluencyGenerator.pre_pos_probs = {
     'VERB': 0.4,
     'NOUN': 0.3,
