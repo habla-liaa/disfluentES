@@ -368,8 +368,8 @@ class SpanishDisfluencyGenerator:
         # Insert appropriate word based on type and context
         if word_type == 'articles' and target_token.pos_ in ['NOUN', 'ADJ']:
             gender = target_token.morph.get('Gender', [''])[0]
-            number = target_token.morph.get('Number', [''])[0]
-            
+            number = target_token.morph.get('Number', [''])[0]                   
+
             if gender == 'fem' and number == 'sing':
                 insert_word = random.choice(['la', 'una'])
             elif gender == 'fem' and number == 'plur':
@@ -380,15 +380,15 @@ class SpanishDisfluencyGenerator:
                 insert_word = random.choice(['los', 'unos'])
             else:
                 insert_word = random.choice(self.articles)
-        else:
-            if word_type == 'prepositions':
-                insert_word = random.choice(self.prepositions)
-            elif word_type == 'conjunctions':
-                # Choose between coordinating and subordinating conjunctions
-                conj_type = random.choice(['CCONJ', 'SCONJ'])
-                insert_word = random.choice(self.conjunctions[conj_type])
-            else:  # discourse_markers
-                insert_word = random.choice(self.discourse_markers)
+        elif word_type == 'prepositions':
+            insert_word = random.choice(self.prepositions)
+        elif word_type == 'conjunctions':
+            # Choose between coordinating and subordinating conjunctions
+            conj_type = random.choice(['CCONJ', 'SCONJ'])
+            insert_word = random.choice(self.conjunctions[conj_type])
+        else: # discourse_markers
+            # TODO: Add discourse markers after any a PRE disfluency instead of regular insertion
+            insert_word = random.choice(self.discourse_markers)
                 
         words.insert(target_idx, insert_word)
         return ' '.join(words)
