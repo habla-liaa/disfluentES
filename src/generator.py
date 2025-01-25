@@ -179,12 +179,22 @@ class SpanishDisfluencyGenerator:
     def _apply_deletion(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word deletion disfluency."""
 
+        # If only one word, return text
+        if len(text.split()) == 1:
+            return text
+        
+        # If empty text, return text
+        if len(text.strip()) == 0:
+            return text
+
         # Select words based on POS tag probabilities
         candidates = [(i, token) for i, token in enumerate(doc) 
-                     if token.pos_ in self.del_pos_probs and len(token.text) > 3]
+                     if token.pos_ in self.del_pos_probs]
         
-        if not candidates:
-            return text
+        if not candidates: # delete a random word
+            words = text.split()
+            words.pop(random.randint(0, len(words) - 1))
+            return ' '.join(words)
             
         # Weight by POS probability
         weights = [self.del_pos_probs[token.pos_] for _, token in candidates]
@@ -365,8 +375,8 @@ class SpanishDisfluencyGenerator:
         # Insert appropriate word based on type and context
         if word_type == 'articles' and target_token.pos_ in ['NOUN', 'ADJ']:
             gender = target_token.morph.get('Gender', [''])[0]
-            number = target_token.morph.get('Number', [''])[0]
-            
+            number = target_token.morph.get('Number', [''])[0]                   
+
             if gender == 'fem' and number == 'sing':
                 insert_word = random.choice(['la', 'una'])
             elif gender == 'fem' and number == 'plur':
@@ -377,15 +387,15 @@ class SpanishDisfluencyGenerator:
                 insert_word = random.choice(['los', 'unos'])
             else:
                 insert_word = random.choice(self.articles)
-        else:
-            if word_type == 'prepositions':
-                insert_word = random.choice(self.prepositions)
-            elif word_type == 'conjunctions':
-                # Choose between coordinating and subordinating conjunctions
-                conj_type = random.choice(['CCONJ', 'SCONJ'])
-                insert_word = random.choice(self.conjunctions[conj_type])
-            else:  # discourse_markers
-                insert_word = random.choice(self.discourse_markers)
+        elif word_type == 'prepositions':
+            insert_word = random.choice(self.prepositions)
+        elif word_type == 'conjunctions':
+            # Choose between coordinating and subordinating conjunctions
+            conj_type = random.choice(['CCONJ', 'SCONJ'])
+            insert_word = random.choice(self.conjunctions[conj_type])
+        else: # discourse_markers
+            # TODO: Add discourse markers after any a PRE disfluency instead of regular insertion
+            insert_word = random.choice(self.discourse_markers)
                 
         words.insert(target_idx, insert_word)
         return ' '.join(words)

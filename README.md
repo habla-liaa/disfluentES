@@ -88,19 +88,10 @@ The tool uses [gin-config](https://github.com/google/gin-config) for configurati
 
 Custom configurations can be created by modifying the default config files in the `config/` directory.
 
-## Project Structure 📁
+### Testing
 
-```
-disfluentES/
-├── config/
-│   ├── default.gin         # Default configuration
-│   └── levels/            # Difficulty-specific configs
-├── src/
-│   ├── generator.py       # Main disfluency generator
-│   └── utils/            # Utility functions
-├── tests/                # Test suite
-├── requirements.txt      # Dependencies
-└── README.md
+```bash
+python -m pytest tests/test_deletion.py -v
 ```
 
 ## Contributing 🤝

@@ -1,4 +1,4 @@
-include "config/default.gin"
+include "config/base_words.gin"
 include "config/base_pos.gin"
 
 # TERCERO level focuses on repetitions, cuts, and prefix alterations

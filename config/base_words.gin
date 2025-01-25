@@ -1,4 +1,4 @@
-SpanishDisfluencyGenerator.articles = [ 'el', 'la', 'las', 'un', 'una' ]
+SpanishDisfluencyGenerator.articles = [ 'el', 'los', 'la', 'las', 'un', 'una', 'unas' ,'unos']
 SpanishDisfluencyGenerator.prepositions = [ 'a', 'ante', 'bajo', 'con', 'contra', 'de', 'desde', 'en', 'entre', 'hacia', 'hasta', 'para', 'por', 'según', 'sin', 'sobre', 'tras' ]
 SpanishDisfluencyGenerator.conjunctions = {
     'CCONJ': ['y', 'e', 'ni', 'o', 'u', 'pero', 'sino', 'mas', 'aunque', 'si bien', 'por más que'],
