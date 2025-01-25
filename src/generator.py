@@ -178,12 +178,23 @@ class SpanishDisfluencyGenerator:
         
     def _apply_deletion(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word deletion disfluency."""
+
+        # If only one word, return text
+        if len(text.split()) == 1:
+            return text
+        
+        # If empty text, return text
+        if len(text.strip()) == 0:
+            return text
+
         # Select words based on POS tag probabilities
         candidates = [(i, token) for i, token in enumerate(doc) 
-                     if token.pos_ in self.del_pos_probs and len(token.text) > 3]
+                     if token.pos_ in self.del_pos_probs]
         
-        if not candidates:
-            return text
+        if not candidates: # delete a random word
+            words = text.split()
+            words.pop(random.randint(0, len(words) - 1))
+            return ' '.join(words)
             
         # Weight by POS probability
         weights = [self.del_pos_probs[token.pos_] for _, token in candidates]
