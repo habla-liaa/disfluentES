@@ -1,4 +1,4 @@
-include "config/default.gin" 
+include "config/base_words.gin"
 include "config/base_pos.gin" 
 
 SpanishDisfluencyGenerator.del_pos_probs = {
