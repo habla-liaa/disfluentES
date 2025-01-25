@@ -6,7 +6,7 @@ import spacy
 import gin
 from typing import Optional, Dict, List, Union, Set
 
-from .utils import phonological, text_ops
+from .utils import phonological, text_ops, spacy_es_wrong_pos
 
 
 @gin.configurable
@@ -354,7 +354,6 @@ class SpanishDisfluencyGenerator:
     def _apply_insertion(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word insertion disfluency."""
         words = text.split()
-        
         # Select insertion position based on target POS
         candidates = [(i, token.pos_, token) for i, token in enumerate(doc)
                      if token.pos_ in self.ins_target_pos]
@@ -371,19 +370,24 @@ class SpanishDisfluencyGenerator:
             list(self.ins_type_probs.keys()),
             weights=list(self.ins_type_probs.values())
         )[0]
-        
-        # Insert appropriate word based on type and context
-        if word_type == 'articles' and target_token.pos_ in ['NOUN', 'ADJ']:
-            gender = target_token.morph.get('Gender', [''])[0]
-            number = target_token.morph.get('Number', [''])[0]                   
 
-            if gender == 'fem' and number == 'sing':
+        if target_token.text in spacy_es_wrong_pos:
+            target_token.pos_ = spacy_es_wrong_pos[target_token.text]['POS']
+            target_token.set_morph(spacy_es_wrong_pos[target_token.text]['Morph'])
+            
+        # Insert appropriate word based on type and context
+        if word_type == 'articles' and target_token.pos_ in ['NOUN','PROPN', 'ADJ']:
+            gender = target_token.morph.get('Gender', [''])[0]
+            number = target_token.morph.get('Number', [''])[0]
+            print(gender, number)
+            
+            if gender == 'Fem' and number == 'Sing':
                 insert_word = random.choice(['la', 'una'])
-            elif gender == 'fem' and number == 'plur':
+            elif gender == 'Fem' and number == 'Plur':
                 insert_word = random.choice(['las', 'unas'])
-            elif gender == 'masc' and number == 'sing':
+            elif gender == 'Masc' and number == 'Sing':
                 insert_word = random.choice(['el', 'un'])
-            elif gender == 'masc' and number == 'plur':
+            elif gender == 'Masc' and number == 'Plur':
                 insert_word = random.choice(['los', 'unos'])
             else:
                 insert_word = random.choice(self.articles)
