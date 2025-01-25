@@ -47,3 +47,4 @@ def test_apply_deletion_whitespace(generator):
     doc = generator.nlp(text)
     result = generator._apply_deletion(text, doc)
     assert result == text 
+

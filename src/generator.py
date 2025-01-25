@@ -230,7 +230,104 @@ class SpanishDisfluencyGenerator:
 
         words[idx] = op(token.text)
         return ' '.join(words)
+    
+    def _apply_substitution(self, text: str, doc: spacy.tokens.Doc) -> str:
+        """Apply word substitution disfluency. Ensures at least one substitution occurs."""
+        original_text = text
+        max_attempts = 3
         
+        for _ in range(max_attempts):
+            candidates = [(i, token) for i, token in enumerate(doc) if token.pos_ in self.sust_pos_probs and (token.has_vector or token.pos_ in ['DET', 'ADP'])]
+            if not candidates:
+                candidates = [(i, token) for i, token in enumerate(doc)]
+            
+            idx, token = random.choice(candidates)
+            words = text.split()
+            
+            sub_type = random.choices(list(self.substitution_alteration_subclass.keys()),
+                                    weights=list(self.substitution_alteration_subclass.values()))[0]
+            if not isinstance(token, spacy.tokens.Token):
+                continue
+
+            if token.pos_ in ['VERB', 'AUX']:
+                if sub_type == 'inflection' and token.morph: 
+                    try: 
+                        if token.morph.get('VerbForm') == ['Fin']:
+                            number = 'Sing' if 'Plur' in token.morph.get('Number',[]) else 'Plur'
+                            inflected = token._.inflect({'Number': number})
+                            if inflected:
+                                words[idx] = inflected
+                        else:
+                            inflected = token.lemma_ if token.text != token.lemma_ else token._.inflect('VerbForm=Fin')
+                            if inflected:
+                                words[idx] = inflected
+                    except: 
+                        continue
+                elif sub_type == 'similarity' and token.has_vector and token.vector_norm > 0:
+                    similar_words = []
+                    for lex in token.doc.vocab:
+                        if (lex.has_vector and lex.vector_norm > 0 and lex.cluster == token.cluster and  # Use cluster ID to filter similar words
+                        token.similarity(lex) > 0.5):
+                            similar_words.append(lex.text)
+
+                    if similar_words:
+                        words[idx] = random.choice(similar_words)
+                else:  # misspelling
+                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
+                
+            elif token.pos_ in ['NOUN', 'ADJ']:
+                if sub_type == 'inflection' and token.morph:
+                    try:
+                        change_type = random.choice(['number', 'gender'])
+                        if change_type == 'number':
+                            number = 'Sing' if 'Plur' in token.morph.get('Number',[]) else 'Plur'
+                            inflected = token._.inflect({'Number': number})
+                            if inflected:
+                                words[idx] = inflected
+                        else:
+                            gender = 'Fem' if 'Masc' in token.morph.get('Gender', []) else 'Masc'
+                            inflected = token._.inflect({'Gender': gender})
+                            if inflected:
+                                words[idx] = inflected
+                    except:
+                        continue
+                elif sub_type == 'similarity' and token.has_vector and token.vector_norm > 0:
+                    similar_words = []
+
+                    for lex in token.doc.vocab:
+                        if (lex.has_vector and lex.vector_norm > 0 and lex.cluster == token.cluster and  # Use cluster ID to filter similar words
+                        token.similarity(lex) > 0.5):
+                            similar_words.append(lex.text)
+                    if similar_words:
+                        words[idx] = random.choice(similar_words)
+                else:
+                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
+                
+            elif token.pos_ == 'DET':
+                det_map = {
+                    'la': 'una', 'una': 'la',
+                    'el': 'un', 'un': 'el',
+                    'los': 'unos', 'unos': 'los',
+                    'las': 'unas', 'unas': 'las'
+                }
+                if token.text.lower() in det_map:
+                    words[idx] = det_map[token.text.lower()]
+                else:
+                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)   
+            elif token.pos_ == 'ADP':
+                prepositions = ['de', 'en', 'a', 'por', 'para', 'con', 'sin']
+                if token.text in prepositions:
+                    available_preps = [p for p in prepositions if p != token.text]
+                    words[idx] = random.choice(available_preps)
+                else:
+                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
+            result = ' '.join(words)
+            if result != original_text:
+                return result
+
+
+
+    '''
     def _apply_substitution(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word substitution disfluency."""
         # Get candidates based on POS
@@ -249,10 +346,8 @@ class SpanishDisfluencyGenerator:
             words[idx] = phonological.substitute_char(token.text, self.char_patterns)
         
         # Get substitution type probabilities for this POS
-        sub_type = random.choices(
-            list(self.substitution_alteration_subclass.keys()),
-            weights=list(self.substitution_alteration_subclass.values())
-        )[0]
+        sub_type = random.choices(list(self.substitution_alteration_subclass.keys()),
+                                    weights=list(self.substitution_alteration_subclass.values()))[0]
         
         # Apply substitution based on type and POS
         if token.pos_ in ['VERB', 'AUX']:
@@ -271,6 +366,7 @@ class SpanishDisfluencyGenerator:
                 except:
                     # Fallback to misspelling
                     words[idx] = phonological.substitute_char(token.text, self.char_patterns)
+            
             elif sub_type == 'similarity':
                 # Use vector similarity for similar verbs
                 if token.has_vector and token.vector_norm > 0:
@@ -311,15 +407,19 @@ class SpanishDisfluencyGenerator:
                         words[idx] = word[:-1] + 'o'
             elif sub_type == 'similarity':
                 # Use vector similarity for similar nouns/adjectives
+                
+                
                 if token.has_vector and token.vector_norm > 0:
                     similar_words = []
                     for word in token.vocab:
+                        embed()
                         if word.has_vector and word.vector_norm > 0 and word.pos_ == token.pos_:
                             similarity = token.similarity(word)
                             if similarity > 0.5 and similarity < 1.0:
                                 similar_words.append(word.text)
                     if similar_words:
                         words[idx] = random.choice(similar_words)
+               
                 else:
                     words[idx] = phonological.substitute_char(token.text, self.char_patterns)
             else:  # misspelling
@@ -350,7 +450,7 @@ class SpanishDisfluencyGenerator:
             words[idx] = phonological.substitute_char(token.text, self.char_patterns)
                 
         return ' '.join(words)
-        
+    '''
     def _apply_insertion(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word insertion disfluency."""
         words = text.split()
