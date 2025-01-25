@@ -2,16 +2,27 @@
 
 import random
 import gin
+import spacy
 
+def cut_word(word: spacy.tokens.Doc) -> str:
+    """Remove a random number of syllables from the word beginning or end and return the word"""
 
-@gin.configurable
-def cut_word(word: str, min_length: int = 3) -> str:
-    """Cut a word at a random position if it's longer than min_length."""
-    if not word or len(word) <= min_length:
-        return word
-    
-    cut_pos = random.randint(min_length, len(word))
-    return word[:cut_pos]
+    syllables = word._.syllables
+    if not syllables:
+        return str(word)  # Return the original word if no syllables are found
+
+    # Decide whether to cut from the beginning or the end
+    cut_from_start = random.choice([True, False])
+    num_syllables_to_cut = random.randint(1, len(syllables)-1)
+
+    if cut_from_start:
+        # Cut from the beginning
+        new_word = ''.join(syllables[num_syllables_to_cut:])
+    else:
+        # Cut from the end
+        new_word = ''.join(syllables[:-num_syllables_to_cut])
+
+    return new_word
 
 
 @gin.configurable

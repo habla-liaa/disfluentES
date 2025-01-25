@@ -8,6 +8,7 @@ from typing import Optional, Dict, List, Union, Set
 
 from .utils import phonological, text_ops, spacy_es_wrong_pos
 
+from spacy_syllables import SpacySyllables
 
 @gin.configurable
 class SpanishDisfluencyGenerator:
@@ -55,6 +56,7 @@ class SpanishDisfluencyGenerator:
         """
         try:
             self.nlp = spacy.load('es_core_news_lg')
+            self.nlp.add_pipe("syllables", after="ner")
         except OSError:
             raise OSError("Please install Spanish language model: python -m spacy download es_core_news_lg")
             
@@ -116,7 +118,15 @@ class SpanishDisfluencyGenerator:
                 }
             }
         }
-        
+    def parse_text(self, text: str) -> spacy.tokens.Doc:
+        """Parse the input text into a spacy Doc object."""
+        doc = self.nlp(text)
+        for token in doc:
+            if token.text in spacy_es_wrong_pos:
+                token.pos_ = spacy_es_wrong_pos[token.text]['POS']
+                token.set_morph(spacy_es_wrong_pos[token.text]['Morph'])
+        return doc
+    
     def generate_disfluencies(self, 
                             text: str, 
                             num_repetitions: Optional[int] = None) -> str:
@@ -136,7 +146,8 @@ class SpanishDisfluencyGenerator:
             return text
             
         num_repetitions = num_repetitions or self.max_repetitions
-        doc = self.nlp(text)
+        
+        doc = self.parse_text(text)
         
         result = text
         if self.disfluency_type:
@@ -152,7 +163,7 @@ class SpanishDisfluencyGenerator:
                     weights=list(self.disfluency_type_probs.values())
                 )[0]
                 result = self._apply_disfluency(disfluency, result, doc)
-                doc = self.nlp(result)
+                doc = self.parse_text(result)
                 
         return result
         
@@ -371,15 +382,11 @@ class SpanishDisfluencyGenerator:
             weights=list(self.ins_type_probs.values())
         )[0]
 
-        if target_token.text in spacy_es_wrong_pos:
-            target_token.pos_ = spacy_es_wrong_pos[target_token.text]['POS']
-            target_token.set_morph(spacy_es_wrong_pos[target_token.text]['Morph'])
             
         # Insert appropriate word based on type and context
         if word_type == 'articles' and target_token.pos_ in ['NOUN','PROPN', 'ADJ']:
             gender = target_token.morph.get('Gender', [''])[0]
             number = target_token.morph.get('Number', [''])[0]
-            print(gender, number)
             
             if gender == 'Fem' and number == 'Sing':
                 insert_word = random.choice(['la', 'una'])
@@ -406,6 +413,8 @@ class SpanishDisfluencyGenerator:
         
     def _apply_cut(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word cutting disfluency."""
+
+
         candidates = [(i, token) for i, token in enumerate(doc) 
                      if token.pos_ in self.cut_pos_probs and len(token.text) > 3]
         
@@ -417,7 +426,8 @@ class SpanishDisfluencyGenerator:
         idx, token = random.choices(candidates, weights=weights)[0]
         
         words = text.split()
-        words[idx] = text_ops.cut_word(token.text)
+        
+        words[idx] = text_ops.cut_word(token)        
         return ' '.join(words)
         
     def _apply_repetition(self, text: str, doc: spacy.tokens.Doc) -> str:
