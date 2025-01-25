@@ -1,0 +1,86 @@
+# Generator settings
+
+include "config/default.gin" 
+include "config/base_pos.gin" 
+
+
+# use these settings for primero
+#pos_tag_del = {'DET': 0.27, 'NOUN':0.08, 'ADP': 0.29, 'CCONJ': 0.05, 'PRON': 0.10, 'AUX': 0.05}
+#pos_tag_sust = {'VERB':0.24, 'NOUN':0.24, 'ADJ':0.19, 'DET':0.11, 'ADP':0.08}
+#Target pos es el pos tag que aparece más frecuentemente después de una inserción
+#target_pos_ins = {'NOUN':0.28, 'DET':0.22, 'ADJ':0.02, 'VERB':0.12, 'ADP':0.07}
+#Son los pos tags más frecuentemente insertados
+#insertion_probs = {'articles':0.31, 'prepositions': 0.23, 'conjunctions':0.11, 'disc_markers':0.10} 
+#pos_tag_cut = {'VERB': 0.41, 'NOUN': 0.21, 'ADJ': 0.25, 'ADP': 0.10, 'DET': 0.03}
+#pos_tag_rep = {'ADP': 0.41, 'DET': 0.08, 'VERB': 0.17, 'AUX': 0.09, 'NOUN': 0.08}
+#pos_tag_pre = {'VERB': 0.25, 'NOUN': 0.37, 'ADJ': 0.12, 'ADP': 0.12, 'DET': 0.01, 'AUX': 0.01, 'PRON': 0.05, 'NUM': 0.05, 'ADV': 0.05}
+
+SpanishDisfluencyGenerator.del_pos_probs = {
+    'DET': 0.27,
+    'NOUN':0.08,
+    'ADP': 0.29,
+    'CCONJ': 0.05,
+    'PRON': 0.10,
+    'AUX': 0.05
+}
+
+SpanishDisfluencyGenerator.sust_pos_probs = {
+    'VERB':0.24,
+    'NOUN':0.24,
+    'ADJ':0.19,
+    'DET':0.11,
+    'ADP':0.08
+}
+
+SpanishDisfluencyGenerator.ins_target_pos = {
+    'NOUN':0.28,
+    'DET':0.22,
+    'ADJ':0.02,
+    'VERB':0.12,
+    'ADP':0.07
+}   
+
+SpanishDisfluencyGenerator.ins_type_probs = {
+    'articles':0.31,
+    'prepositions': 0.23,
+    'conjunctions':0.11,
+    'disc_markers':0.10
+} 
+
+SpanishDisfluencyGenerator.cut_pos_probs = {
+    'VERB': 0.41,
+    'NOUN': 0.21,
+    'ADJ': 0.25,
+    'ADP': 0.10,
+    'DET': 0.03
+}
+
+SpanishDisfluencyGenerator.rep_pos_probs = {
+    'ADP': 0.41,
+    'DET': 0.08,
+    'VERB': 0.17,
+    'AUX': 0.09,
+    'NOUN': 0.08
+}
+
+SpanishDisfluencyGenerator.pre_pos_probs = {
+    'VERB': 0.25,
+    'NOUN': 0.37,
+    'ADJ': 0.12,
+    'ADP': 0.12,
+    'DET': 0.01,
+    'AUX': 0.01,
+    'PRON': 0.05,
+    'NUM': 0.05,
+    'ADV': 0.05
+}
+
+SpanishDisfluencyGenerator.disfluency_type_probs = {
+    'DEL': 0.087,  # D: 8.727273
+    'INS': 0.138,  # INS: 13.818182
+    'PHO': 0.028,  # PHO: 2.818182
+    'PRE': 0.219,  # PRE: 21.909091
+    'CUT': 0.005,  # RC: 0.454545
+    'REP': 0.295,  # REP: 29.454545
+    'SUST': 0.228  # S: 22.818182
+}

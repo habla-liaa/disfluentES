@@ -1,0 +1,77 @@
+include "config/default.gin"
+include "config/base_pos.gin"
+
+# TERCERO level focuses on repetitions, cuts, and prefix alterations
+SpanishDisfluencyGenerator.del_pos_probs = {
+    'DET': 0.20,
+    'NOUN': 0.25,
+    'ADP': 0.20,
+    'VERB': 0.20,
+    'ADJ': 0.15
+}
+
+SpanishDisfluencyGenerator.sust_pos_probs = {
+    'VERB': {
+        'misspelling': 0.3,
+        'inflection': 0.4,
+        'similarity': 0.3
+    },
+    'NOUN': {
+        'gender_number': 0.3,
+        'similarity': 0.4,
+        'misspelling': 0.3
+    },
+    'ADJ': {
+        'gender_number': 0.3,
+        'similarity': 0.4,
+        'misspelling': 0.3
+    }
+}
+
+SpanishDisfluencyGenerator.ins_target_pos = {
+    'NOUN': 0.35,
+    'DET': 0.20,
+    'ADJ': 0.15,
+    'VERB': 0.20,
+    'ADP': 0.10
+}
+
+SpanishDisfluencyGenerator.ins_type_probs = {
+    'articles': 0.30,
+    'prepositions': 0.30,
+    'conjunctions': 0.20,
+    'disc_markers': 0.20
+}
+
+SpanishDisfluencyGenerator.cut_pos_probs = {
+    'VERB': 0.40,
+    'NOUN': 0.30,
+    'ADJ': 0.20,
+    'ADP': 0.10
+}
+
+SpanishDisfluencyGenerator.rep_pos_probs = {
+    'ADP': 0.30,
+    'DET': 0.10,
+    'VERB': 0.30,
+    'AUX': 0.10,
+    'NOUN': 0.20
+}
+
+SpanishDisfluencyGenerator.pre_pos_probs = {
+    'VERB': 0.35,
+    'NOUN': 0.35,
+    'ADJ': 0.20,
+    'ADP': 0.10
+}
+
+SpanishDisfluencyGenerator.disfluency_type_probs = {
+    'DEL': 0.060,  # D: 6.047967
+    'INS': 0.101,  # INS: 10.114703
+    'PHO': 0.050,  # PHO: 5.005214
+    'PRE': 0.246,  # PRE: 24.608968
+    'CUT': 0.006,  # RC: 0.625652
+    'REP': 0.219,  # REP: 21.897810
+    'SUST': 0.317  # S: 31.699687
+}
+

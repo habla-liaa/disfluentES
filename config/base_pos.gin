@@ -1,0 +1,85 @@
+# POS tag probabilities for different operations
+
+# Bind POS probabilities to generator class
+SpanishDisfluencyGenerator.del_pos_probs = {
+    'NOUN': 0.3,
+    'VERB': 0.2,
+    'ADJ': 0.2,
+    'ADV': 0.15,
+    'ADP': 0.1,
+    'DET': 0.05
+}
+
+SpanishDisfluencyGenerator.pho_pos_probs = {
+    'NOUN': 0.25,
+    'VERB': 0.25,
+    'ADJ': 0.2,
+    'ADV': 0.15,
+    'PROPN': 0.15
+}
+
+SpanishDisfluencyGenerator.sust_pos_probs = {
+    'VERB': {
+        'misspelling': 0.3,
+        'inflection': 0.5,
+        'similarity': 0.2
+    },
+    'NOUN': {
+        'gender_number': 0.4,
+        'similarity': 0.4,
+        'misspelling': 0.2
+    },
+    'ADJ': {
+        'gender_number': 0.4,
+        'similarity': 0.4,
+        'misspelling': 0.2
+    },
+    'DET': {
+        'gender': 0.35,
+        'number': 0.3,
+        'alternative': 0.35
+    },
+    'ADP': {
+        'preposition': 0.6,
+        'conjunction': 0.4
+    },
+    'CCONJ': {'alternative': 1.0},
+    'SCONJ': {'alternative': 1.0}
+}
+
+SpanishDisfluencyGenerator.ins_type_probs = {
+    'articles': 0.3,
+    'prepositions': 0.3,
+    'conjunctions': 0.2,
+    'discourse_markers': 0.2
+}
+
+SpanishDisfluencyGenerator.ins_target_pos = {
+    'NOUN': 0.4,
+    'ADJ': 0.3,
+    'VERB': 0.2,
+    'ADV': 0.1
+}
+
+SpanishDisfluencyGenerator.cut_pos_probs = {
+    'VERB': 0.3,
+    'NOUN': 0.3,
+    'ADJ': 0.2,
+    'ADV': 0.2
+}
+
+SpanishDisfluencyGenerator.rep_pos_probs = {
+    'VERB': 0.3,
+    'NOUN': 0.25,
+    'ADJ': 0.2,
+    'ADV': 0.15,
+    'DET': 0.1
+}
+
+SpanishDisfluencyGenerator.pre_pos_probs = {
+    'VERB': 0.4,
+    'NOUN': 0.3,
+    'ADJ': 0.2,
+    'ADV': 0.1
+}
+ 
