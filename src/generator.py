@@ -171,13 +171,14 @@ class SpanishDisfluencyGenerator:
         elif disfluency == 'REP':
             return self._apply_repetition(text, doc)
         elif disfluency == 'PRE':
-            return self._apply_prefix(text, doc)
+            return self._apply_precorrection(text, doc)
         elif disfluency == 'FILL':
             return self._apply_filler(text)
         return text
         
     def _apply_deletion(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word deletion disfluency."""
+
         # Select words based on POS tag probabilities
         candidates = [(i, token) for i, token in enumerate(doc) 
                      if token.pos_ in self.del_pos_probs and len(token.text) > 3]
@@ -195,17 +196,19 @@ class SpanishDisfluencyGenerator:
         
     def _apply_phonological(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply phonological disfluency."""
+        
         # Select content words based on POS probabilities
         candidates = [(i, token) for i, token in enumerate(doc) 
-                     if token.pos_ in self.pho_pos_probs and len(token.text) > 3]
+                     if token.pos_ in self.pho_pos_probs]
+        
+        weights = [self.pho_pos_probs[token.pos_] for _, token in candidates]
         
         if not candidates:
-            return text
-            
+            candidates = [(i, token) for i, token in enumerate(doc)]
+            weights = [1.0] * len(candidates)
+
         # Weight by POS probability
-        weights = [self.pho_pos_probs[token.pos_] for _, token in candidates]
         idx, token = random.choices(candidates, weights=weights)[0]
-        
         words = text.split()
         
         # Apply random phonological operation
@@ -213,8 +216,8 @@ class SpanishDisfluencyGenerator:
             lambda x: phonological.substitute_char(x, self.char_patterns),
             lambda x: phonological.insert_char(x, self.char_patterns),
             lambda x: phonological.delete_char(x, self.char_patterns)
-        ])
-        
+        ])        
+
         words[idx] = op(token.text)
         return ' '.join(words)
         
@@ -225,10 +228,15 @@ class SpanishDisfluencyGenerator:
                      if token.pos_ in self.sust_pos_probs]
         
         if not candidates:
-            return text
-            
+            candidates = [(i, token) for i, token in enumerate(doc)]
+        
+        
         idx, token = random.choice(candidates)
         words = text.split()
+
+        # if token pos is not in sust_pos_probs, return phonological error
+        if token.pos_ not in self.sust_pos_probs:
+            words[idx] = phonological.substitute_char(token.text, self.char_patterns)
         
         # Get substitution type probabilities for this POS
         sub_type = random.choices(
@@ -414,8 +422,8 @@ class SpanishDisfluencyGenerator:
         )))
         return result if success else text
         
-    def _apply_prefix(self, text: str, doc: spacy.tokens.Doc) -> str:
-        """Apply prefix alteration disfluency."""
+    def _apply_precorrection(self, text: str, doc: spacy.tokens.Doc) -> str:
+        """Apply precorrection disfluency."""
         candidates = [(i, token) for i, token in enumerate(doc)
                      if token.pos_ in self.pre_pos_probs and len(token.text) > 4]
                      
