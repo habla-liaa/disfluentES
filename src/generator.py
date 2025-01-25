@@ -6,7 +6,7 @@ import spacy
 import gin
 from typing import Optional, Dict, List, Union, Set
 
-from .utils import phonological, text_ops, spacy_es_wrong_pos
+from .utils import phonological, text_ops, spacy_es_wrong_pos, default_char_patterns
 
 from spacy_syllables import SpacySyllables
 
@@ -97,27 +97,7 @@ class SpanishDisfluencyGenerator:
         self.conjunctions = conjunctions or {}
         self.discourse_markers = discourse_markers or []
         self.fillers = fillers or []
-        self.char_patterns = char_patterns or {
-            'substitutions': {
-                'consonants': {'b': ['v'], 'v': ['b'], 's': ['z'], 'z': ['s']},
-                'vowels': {'e': ['i'], 'i': ['e'], 'o': ['u'], 'u': ['o']},
-                'diphthongs': {'ie': ['ei'], 'ei': ['ie'], 'ue': ['eu'], 'eu': ['ue']}
-            },
-            'insertions': {
-                'position': {
-                    'start': ['e', 'a'],
-                    'middle': ['s', 'n', 'r'],
-                    'end': ['s', 'n', 'r']
-                }
-            },
-            'deletions': {
-                'position': {
-                    'start': ['e', 'a', 'h'],
-                    'middle': ['s', 'n', 'r'],
-                    'end': ['s', 'n', 'r']
-                }
-            }
-        }
+        self.char_patterns = char_patterns or default_char_patterns
     def parse_text(self, text: str) -> spacy.tokens.Doc:
         """Parse the input text into a spacy Doc object."""
         doc = self.nlp(text)
@@ -218,6 +198,9 @@ class SpanishDisfluencyGenerator:
     def _apply_phonological(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply phonological disfluency."""
         
+        if len(text.strip()) == 0:
+            return text
+
         # Select content words based on POS probabilities
         candidates = [(i, token) for i, token in enumerate(doc) 
                      if token.pos_ in self.pho_pos_probs]
@@ -233,11 +216,14 @@ class SpanishDisfluencyGenerator:
         words = text.split()
         
         # Apply random phonological operation
-        op = random.choice([
-            lambda x: phonological.substitute_char(x, self.char_patterns),
-            lambda x: phonological.insert_char(x, self.char_patterns),
-            lambda x: phonological.delete_char(x, self.char_patterns)
-        ])        
+        ops = []
+        if 'substitutions' in self.char_patterns:
+            ops.append(lambda x: phonological.substitute_char(x, self.char_patterns))
+        if 'insertions' in self.char_patterns:
+            ops.append(lambda x: phonological.insert_char(x, self.char_patterns))
+        if 'deletions' in self.char_patterns:
+            ops.append(lambda x: phonological.delete_char(x, self.char_patterns))
+        op = random.choice(ops)        
 
         words[idx] = op(token.text)
         return ' '.join(words)

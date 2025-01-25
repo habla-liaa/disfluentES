@@ -11,8 +11,11 @@ def substitute_char(word: str, char_patterns: dict) -> str:
         return word
         
     # Choose substitution type
-    sub_type = random.choice(['consonants', 'vowels', 'diphthongs'])
+    sub_type = random.choice(list(char_patterns['substitutions'].keys()))
     patterns = char_patterns['substitutions'][sub_type]
+    
+    if not patterns:
+        return word
     
     # Find applicable patterns
     possible_subs = []
@@ -36,15 +39,18 @@ def insert_char(word: str, char_patterns: dict) -> str:
         return word
         
     # Choose position
-    positions = char_patterns['insertions']['position']
-    pos_type = random.choice(['start', 'middle', 'end'])
-    chars = positions[pos_type]
+    positions = char_patterns['insertions'].get('position', {})
+    if not positions:
+        return word
+    
+    position_type = random.choice(list(positions.keys()))
+    chars = positions[position_type]
     
     char_to_insert = random.choice(chars)
     
-    if pos_type == 'start':
+    if position_type == 'start':
         return char_to_insert + word
-    elif pos_type == 'end':
+    elif position_type == 'end':
         return word + char_to_insert
     else:
         pos = random.randint(1, len(word)-1)
@@ -58,9 +64,12 @@ def delete_char(word: str, char_patterns: dict) -> str:
         return word
         
     # Choose position
-    positions = char_patterns['deletions']['position']
-    pos_type = random.choice(['start', 'middle', 'end'])
-    chars = positions[pos_type]
+    positions = char_patterns['deletions'].get('position', {})
+    if not positions:
+        return word
+    
+    position_type = random.choice(list(positions.keys()))
+    chars = positions[position_type]
     
     # Find applicable deletions
     possible_dels = []
