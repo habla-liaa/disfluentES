@@ -1,16 +1,23 @@
-# Spanish Disfluency Generator
+# DisfluentES 🗣️
 
-A Python tool for generating natural disfluencies in Spanish text. This tool can introduce various types of disfluencies commonly found in spontaneous speech, including:
+A Python tool for generating natural disfluencies in Spanish text, simulating spontaneous speech patterns. This tool introduces various types of disfluencies commonly found in natural speech, making text sound more conversational and human-like.
 
-- Word deletions (DEL)
-- Phonological alterations (PHO)
-- Word substitutions (SUST)
-- Word insertions (INS)
-- Word cuts (CUT)
-- Word repetitions (REP)
-- Filler words (FILL)
+## Features 🌟
 
-## Installation
+### Disfluency Types
+- **Deletions (DEL)**: Omission of words (e.g., "El gato duerme" → "gato duerme")
+- **Phonological Changes (PHO)**: Sound alterations (e.g., "casa" → "caza")
+- **Substitutions (SUST)**: Word replacements with similar meaning or form
+  - Inflection changes (gender, number, tense)
+  - Similar word substitutions
+  - Misspellings
+- **Insertions (INS)**: Addition of articles, prepositions, or discourse markers
+- **Word Cuts (CUT)**: Partial word pronunciations
+- **Repetitions (REP)**: Word repetitions
+- **Prefix Alterations (PRE)**: Changes to word beginnings
+- **Fillers (FILL)**: Addition of hesitation markers
+
+## Installation 🔧
 
 1. Clone the repository:
 ```bash
@@ -18,71 +25,112 @@ git clone https://github.com/yourusername/disfluentES.git
 cd disfluentES
 ```
 
-2. Install dependencies:
+2. Create and activate a virtual environment (recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Download the Spanish language model:
+4. Download the Spanish language model:
 ```bash
 python -m spacy download es_core_news_lg
 ```
 
-## Usage
+## Usage 💻
 
-The tool can be used from the command line:
+### Basic Usage
 
+Generate disfluencies with default settings:
 ```bash
-python disfluentes.py --input_text "Tu texto en español" --output_file output.txt --config_file config/default.gin
-```
-
-Or with a text file as input:
-
-```bash
-python disfluentes.py --input_text input.txt --output_file output.txt
-```
-
-### Arguments
-
-- `--input_text`: Input text or path to input file
-- `--output_file`: (Optional) Path to output file. If not provided, prints to stdout
-- `--config_file`: (Optional) Path to gin config file. Defaults to `config/default.gin`
-- `--num_repetitions`: (Optional) Number of disfluencies to apply (overrides config)
-
-## Configuration
-
-- Common Spanish fillers and discourse markers
-- Character patterns for phonological changes
-- Maximum number of repetitions
-
-You can create custom configurations by copying and modifying the default config file.
-
-# Basic usage
-python disfluentes.py --input_text "Tu texto en español"
-
-# Process sentences separately with multiple variations
-python disfluentes.py --input_text input.txt --output_file output.txt --process_sentences --num_variations 3
-
-# Apply specific disfluencies in order
-python disfluentes.py --input_text "Tu texto" --specific_disfluencies '["DEL", "PHO", "SUST"]'
-
-# Use different level configurations
-python disfluentes.py --input_text "Tu texto" --config_file config/levels/primero.gin
-
-# Random disfluencies
 python disfluentes.py -i "El gato duerme en la cama" -o output.txt
+```
 
-# Specific disfluency types
-python disfluentes.py -i "El gato duerme en la cama" --disfluency_type='["DEL","INS"]'
+### Advanced Usage
 
-# Multiple variations
-python disfluentes.py -i "El gato duerme. El perro come." --num_variations=3 --process_sentences=True
+1. **Process Multiple Sentences**:
+```bash
+python disfluentes.py -i "El gato duerme. El perro come." \
+                     --process_sentences \
+                     --num_variations 3
+```
 
+2. **Use Different Difficulty Levels**:
+```bash
+# Beginner level
+python disfluentes.py -i "Tu texto" --config_file config/levels/primero.gin
 
-## Contributing
+# Intermediate level
+python disfluentes.py -i "Tu texto" --config_file config/levels/tercero.gin
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+# Advanced level
+python disfluentes.py -i "Tu texto" --config_file config/levels/quinto.gin
+```
 
-## License
+3. **Specify Disfluency Types**:
+```bash
+python disfluentes.py -i "El gato duerme" \
+                     --disfluency_type='["DEL","INS"]'
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Configuration 🛠️
+
+The tool uses [gin-config](https://github.com/google/gin-config) for configuration. Available settings include:
+
+- Disfluency type probabilities
+- POS tag probabilities for each disfluency type
+- Word lists (articles, prepositions, discourse markers)
+- Character patterns for phonological changes
+
+Custom configurations can be created by modifying the default config files in the `config/` directory.
+
+## Project Structure 📁
+
+```
+disfluentES/
+├── config/
+│   ├── default.gin         # Default configuration
+│   └── levels/            # Difficulty-specific configs
+├── src/
+│   ├── generator.py       # Main disfluency generator
+│   └── utils/            # Utility functions
+├── tests/                # Test suite
+├── requirements.txt      # Dependencies
+└── README.md
+```
+
+## Contributing 🤝
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License 📄
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Citation 📚
+
+If you use this tool in your research, please cite:
+
+```bibtex
+@software{disfluentES2024,
+  author = {Your Name},
+  title = {DisfluentES: A Spanish Disfluency Generator},
+  year = {2024},
+  url = {https://github.com/yourusername/disfluentES}
+}
+```
+
+## Acknowledgments 🙏
+
+- SpaCy for their excellent Spanish language model
+- The research community for insights on Spanish disfluency patterns
