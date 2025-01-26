@@ -1,6 +1,6 @@
 include "config/base_words.gin"
 include "config/base_probs.gin"
-
+include "config/base_substitutions.gin"
 # TERCERO level focuses on repetitions, cuts, and prefix alterations
 SpanishDisfluencyGenerator.del_pos_probs = {
     'DET': 0.20,

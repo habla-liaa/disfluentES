@@ -1,0 +1,6 @@
+SpanishDisfluencyGenerator.substitution_similarity_params = {    
+    'n_words': 10,
+    'cutoff': 0.8,
+    'vector_similarity': True,
+    'close_matches': True
+}

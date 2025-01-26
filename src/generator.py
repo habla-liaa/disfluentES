@@ -31,13 +31,13 @@ class SpanishDisfluencyGenerator:
                  rep_order_probs: Dict[int, float] = None,
                  pre_pos_probs: Dict[str, float] = None,
                  pre_type_probs: Dict[str, float] = None,
+                 substitution_similarity_params: Dict[str, float] = None,
                  articles: List[str] = None,
                  prepositions: List[str] = None,
                  conjunctions: Dict[str, List[str]] = None,
                  discourse_markers: List[str] = None,
                  fillers: List[str] = None,
-                 char_patterns: Dict[str, Dict] = None,
-                 substitution_alteration_subclass: Dict[str, float] = None):
+                 char_patterns: Dict[str, Dict] = None):
         """Initialize the generator.
         
         Args:
@@ -55,13 +55,13 @@ class SpanishDisfluencyGenerator:
             rep_order_probs: Probabilities for repetition order
             pre_pos_probs: POS tag probabilities for prefix alteration
             pre_type_probs: Probabilities for prefix alteration type
+            substitution_similarity_params: Parameters for substitution similarity
             articles: List of articles to use for insertions
             prepositions: List of prepositions to use for insertions
             conjunctions: Dictionary mapping conjunction types to lists of conjunctions
             discourse_markers: List of discourse markers to use for insertions
             fillers: List of filler words to use for insertions
             char_patterns: Dictionary of phonological patterns for character operations
-            substitution_alteration_subclass: Dictionary mapping substitution types to their probabilities
         """
         try:
             self.nlp = spacy.load('es_core_news_lg')
@@ -97,12 +97,8 @@ class SpanishDisfluencyGenerator:
         self.pre_pos_probs = pre_pos_probs or {}
         self.pre_type_probs = pre_type_probs or {}
         
-        # Load substitution alteration subclass probabilities
-        self.substitution_alteration_subclass = substitution_alteration_subclass or {
-            'misspelling': 0.3,
-            'inflection': 0.5,
-            'similarity': 0.2
-        }
+        # Load substitution similarity parameters
+        self.substitution_similarity_params = substitution_similarity_params or {}
         
         # Load word lists and patterns from gin config
         self.articles = articles or []
@@ -260,10 +256,8 @@ class SpanishDisfluencyGenerator:
         if token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'inflection': 
             words[idx] = text_ops.do_inflection(token, self.noun_inflection_probs)
         elif token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'similarity':
-            words[idx] = text_ops.do_similarity(token, self.similarity_threshold)
+            words[idx] = text_ops.do_similarity(token, self.nlp, **self.substitution_similarity_params)
         elif token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'misspelling':
-            words[idx] = text_ops.do_misspelling(token)           
-        elif sub_type == 'misspelling':
             words[idx] = phonological.misspell_word(token.text, self.char_patterns)               
         elif token.pos_ == 'DET':                
             if token.text.lower() in self.articles_map:
