@@ -6,8 +6,9 @@ import spacy
 import gin
 from typing import Optional, Dict, List, Union, Set
 
-from .utils import phonological, text_ops, spacy_es_wrong_pos
+from .utils import phonological, text_ops, spacy_es_wrong_pos, default_char_patterns
 
+from spacy_syllables import SpacySyllables
 
 @gin.configurable
 class SpanishDisfluencyGenerator:
@@ -24,6 +25,7 @@ class SpanishDisfluencyGenerator:
                  ins_target_pos: Dict[str, float] = None,
                  cut_pos_probs: Dict[str, float] = None,
                  rep_pos_probs: Dict[str, float] = None,
+                 rep_order_probs: Dict[int, float] = None,
                  pre_pos_probs: Dict[str, float] = None,
                  articles: List[str] = None,
                  prepositions: List[str] = None,
@@ -44,6 +46,7 @@ class SpanishDisfluencyGenerator:
             ins_target_pos: Target POS probabilities for insertion
             cut_pos_probs: POS tag probabilities for cutting
             rep_pos_probs: POS tag probabilities for repetition
+            rep_order_probs: Probabilities for repetition order
             pre_pos_probs: POS tag probabilities for prefix alteration
             articles: List of articles to use for insertions
             prepositions: List of prepositions to use for insertions
@@ -55,6 +58,7 @@ class SpanishDisfluencyGenerator:
         """
         try:
             self.nlp = spacy.load('es_core_news_lg')
+            self.nlp.add_pipe("syllables", after="ner")
         except OSError:
             raise OSError("Please install Spanish language model: python -m spacy download es_core_news_lg")
             
@@ -80,6 +84,7 @@ class SpanishDisfluencyGenerator:
         self.ins_target_pos = ins_target_pos or {}
         self.cut_pos_probs = cut_pos_probs or {}
         self.rep_pos_probs = rep_pos_probs or {}
+        self.rep_order_probs = rep_order_probs or {}
         self.pre_pos_probs = pre_pos_probs or {}
         
         # Load substitution alteration subclass probabilities
@@ -95,28 +100,17 @@ class SpanishDisfluencyGenerator:
         self.conjunctions = conjunctions or {}
         self.discourse_markers = discourse_markers or []
         self.fillers = fillers or []
-        self.char_patterns = char_patterns or {
-            'substitutions': {
-                'consonants': {'b': ['v'], 'v': ['b'], 's': ['z'], 'z': ['s']},
-                'vowels': {'e': ['i'], 'i': ['e'], 'o': ['u'], 'u': ['o']},
-                'diphthongs': {'ie': ['ei'], 'ei': ['ie'], 'ue': ['eu'], 'eu': ['ue']}
-            },
-            'insertions': {
-                'position': {
-                    'start': ['e', 'a'],
-                    'middle': ['s', 'n', 'r'],
-                    'end': ['s', 'n', 'r']
-                }
-            },
-            'deletions': {
-                'position': {
-                    'start': ['e', 'a', 'h'],
-                    'middle': ['s', 'n', 'r'],
-                    'end': ['s', 'n', 'r']
-                }
-            }
-        }
+        self.char_patterns = char_patterns or default_char_patterns
         
+    def parse_text(self, text: str) -> spacy.tokens.Doc:
+        """Parse the input text into a spacy Doc object."""
+        doc = self.nlp(text)
+        for token in doc:
+            if token.text in spacy_es_wrong_pos:
+                token.pos_ = spacy_es_wrong_pos[token.text]['POS']
+                token.set_morph(spacy_es_wrong_pos[token.text]['Morph'])
+        return doc
+    
     def generate_disfluencies(self, 
                             text: str, 
                             num_repetitions: Optional[int] = None) -> str:
@@ -136,7 +130,8 @@ class SpanishDisfluencyGenerator:
             return text
             
         num_repetitions = num_repetitions or self.max_repetitions
-        doc = self.nlp(text)
+        
+        doc = self.parse_text(text)
         
         result = text
         if self.disfluency_type:
@@ -152,7 +147,7 @@ class SpanishDisfluencyGenerator:
                     weights=list(self.disfluency_type_probs.values())
                 )[0]
                 result = self._apply_disfluency(disfluency, result, doc)
-                doc = self.nlp(result)
+                doc = self.parse_text(result)
                 
         return result
         
@@ -207,6 +202,9 @@ class SpanishDisfluencyGenerator:
     def _apply_phonological(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply phonological disfluency."""
         
+        if len(text.strip()) == 0:
+            return text
+
         # Select content words based on POS probabilities
         candidates = [(i, token) for i, token in enumerate(doc) 
                      if token.pos_ in self.pho_pos_probs]
@@ -222,11 +220,14 @@ class SpanishDisfluencyGenerator:
         words = text.split()
         
         # Apply random phonological operation
-        op = random.choice([
-            lambda x: phonological.substitute_char(x, self.char_patterns),
-            lambda x: phonological.insert_char(x, self.char_patterns),
-            lambda x: phonological.delete_char(x, self.char_patterns)
-        ])        
+        ops = []
+        if 'substitutions' in self.char_patterns:
+            ops.append(lambda x: phonological.substitute_char(x, self.char_patterns))
+        if 'insertions' in self.char_patterns:
+            ops.append(lambda x: phonological.insert_char(x, self.char_patterns))
+        if 'deletions' in self.char_patterns:
+            ops.append(lambda x: phonological.delete_char(x, self.char_patterns))
+        op = random.choice(ops)        
 
         words[idx] = op(token.text)
         return ' '.join(words)
@@ -471,15 +472,11 @@ class SpanishDisfluencyGenerator:
             weights=list(self.ins_type_probs.values())
         )[0]
 
-        if target_token.text in spacy_es_wrong_pos:
-            target_token.pos_ = spacy_es_wrong_pos[target_token.text]['POS']
-            target_token.set_morph(spacy_es_wrong_pos[target_token.text]['Morph'])
             
         # Insert appropriate word based on type and context
         if word_type == 'articles' and target_token.pos_ in ['NOUN','PROPN', 'ADJ']:
             gender = target_token.morph.get('Gender', [''])[0]
             number = target_token.morph.get('Number', [''])[0]
-            print(gender, number)
             
             if gender == 'Fem' and number == 'Sing':
                 insert_word = random.choice(['la', 'una'])
@@ -506,6 +503,8 @@ class SpanishDisfluencyGenerator:
         
     def _apply_cut(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word cutting disfluency."""
+
+
         candidates = [(i, token) for i, token in enumerate(doc) 
                      if token.pos_ in self.cut_pos_probs and len(token.text) > 3]
         
@@ -517,24 +516,31 @@ class SpanishDisfluencyGenerator:
         idx, token = random.choices(candidates, weights=weights)[0]
         
         words = text.split()
-        words[idx] = text_ops.cut_word(token.text)
+        
+        words[idx] = text_ops.cut_word(token)        
         return ' '.join(words)
         
     def _apply_repetition(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word repetition disfluency."""
-        candidates = [(i, token) for i, token in enumerate(doc)
-                     if token.pos_ in self.rep_pos_probs]
-                     
-        if not candidates:
+        if len(text.strip()) == 0:
             return text
+        
+        order = random.choices(list(self.rep_order_probs.keys()),
+                                weights=list(self.rep_order_probs.values()))[0]
+
+        
+        candidates = [(i, token) for i, token in enumerate(doc)
+                     if token.pos_ in self.rep_pos_probs and i >= order-1]
+                     
+        if not candidates: # repeat random word
+            idx = random.choice(range(len(text.split())))
+            return text_ops.repeat_words(text, idx, 1)
             
         # Weight by POS probability
         weights = [self.rep_pos_probs[token.pos_] for _, token in candidates]
-        result, success = text_ops.repeat_word(text, dict(zip(
-            [token.pos_ for _, token in candidates],
-            weights
-        )))
-        return result if success else text
+        idx, token = random.choices(candidates, weights=weights)[0]
+        idx = text.split().index(token.text)
+        return text_ops.repeat_words(text, idx-order+1, order)
         
     def _apply_precorrection(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply precorrection disfluency."""
