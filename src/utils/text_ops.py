@@ -2,6 +2,8 @@
 
 import random
 import gin
+import spacy
+from difflib import get_close_matches
 
 
 @gin.configurable
@@ -66,3 +68,28 @@ def insert_article(sentence: str, word_idx: int, gender: str, number: str, artic
         
     words.insert(word_idx, article)
     return ' '.join(words) 
+
+@gin.configurable
+def get_similar_words(word: str, n_words: int =10) -> list:
+   nlp = spacy.load("es_core_news_lg") # esto debería estar afuera
+   doc = nlp(word)
+   token = doc[0]
+   
+   similar_words = set()
+   
+   # Get word vector neighbors from model's vocabulary
+   if token.has_vector:
+       ms = nlp.vocab.vectors.most_similar(
+           token.vector[None], n=n_words
+       )
+       similar_words.update([nlp.vocab.strings[w] for w in ms[0][0]])
+       
+   # Add phonologically similar words
+   all_words = [w for w in nlp.vocab.strings if len(w) > 2]
+   phono_similar = get_close_matches(word, all_words, n=10, cutoff=0.8)
+   similar_words.update(phono_similar)
+   
+   # Remove original word
+   similar_words.discard(word)
+   
+   return sorted(list(similar_words))
