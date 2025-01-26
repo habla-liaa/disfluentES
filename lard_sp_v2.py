@@ -21,7 +21,7 @@ class SpanishDisfluencyGenerator:
                                            'después que', 'aunque', 'si bien', 'por más que', 'para que', 'a fin de que', 'como', 'tal como', 'así como']}
 
             self.disc_markers = ['ay', 'perdón', 'ya', 'digo', 'no']
-            self.char_sust = {'c':'g', 
+            self.char_sub = {'c':'g', 
                                  'd':'t'}
             self.vowels = set('aeiouáéíóúüAEIOUÁÉÍÓÚÜ')
             self.char_patterns = {'substitutions': {'consonants': {'n': {'d', 'g', 'l', 'r', 't'},
@@ -71,7 +71,7 @@ class SpanishDisfluencyGenerator:
             return word
     
  
-        def _sust_char():
+        def _sub_char():
             pass
 
         def _cut_word(): 
@@ -116,24 +116,24 @@ class SpanishDisfluencyGenerator:
 
             # 
 
-            # tirar una moneda pesada y elegir si inserción, sustitución, deletion, permutación
+            # tirar una moneda pesada y elegir si inserción, subitución, deletion, permutación
             # Suelen ser: 
-            # sustituciones de consonantes vocales o diptongos
+            # subituciones de consonantes vocales o diptongos
             # inserciones al comienzo o al final y en el medio
             # deletions al comienzo, en el medio o al final
         
             # 
 
 
-        def generate_SUST(self, sentence:str, pos_tag : dict)->str:
+        def generate_SUB(self, sentence:str, pos_tag : dict)->str:
             words = sentence.split()
             result = words.copy()
             metadata = self.nlp(sentence)
 
-            sust_candidates = [(i, pos_tag[token.pos_]) for i, token in enumerate(metadata) 
+            sub_candidates = [(i, pos_tag[token.pos_]) for i, token in enumerate(metadata) 
                      if token.pos_ in pos_tag]
             
-            idxs, probs = zip(*sust_candidates)
+            idxs, probs = zip(*sub_candidates)
             word_idx = random.choices(idxs, weights=probs)[0]
             token = metadata[word_idx]
 
@@ -143,10 +143,10 @@ class SpanishDisfluencyGenerator:
             
 
             if token.pos_ in ['VERB', 'AUX']:
-                # (30) sustitución por verbos similares en la misma conjugación. 
-                # (25) sustitución de verbo es el agreement de número. Cambiar de plural a singluar y al reves. 
+                # (30) subitución por verbos similares en la misma conjugación. 
+                # (25) subitución de verbo es el agreement de número. Cambiar de plural a singluar y al reves. 
                 # (20) Después lo que ocurre es que puede cambiar de tiempo verbal: pasado a presente, presente a pasado
-                # (15) Hay algunas nominalizaciones. Si el verbo es infinitivo se puede cambiar a un sustantivo de misma raíz. 
+                # (15) Hay algunas nominalizaciones. Si el verbo es infinitivo se puede cambiar a un subantivo de misma raíz. 
                 # (10) Mal pronunciar o volver reflexivo 
                 pass
 
@@ -319,7 +319,7 @@ def main():
     sentences = [s.strip() for s in text.split('.') if s.strip()]
 
     #pos_tag_del = {'DET': 0.35, 'NOUN':0.10, 'ADP': 0.15, 'CCONJ': 0.15, 'PRON': 0.10, 'AUX': 0.05}
-    #pos_tag_sust = {'VERB':0.25, 'NOUN':0.20, 'ADJ':0.15, 'DET':0.12, 'ADP':0.08}
+    #pos_tag_sub = {'VERB':0.25, 'NOUN':0.20, 'ADJ':0.15, 'DET':0.12, 'ADP':0.08}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     #target_pos_ins = {'NOUN':0.35, 'DET':0.25, 'ADJ':0.20, 'VERB':0.15, 'ADP':0.05}
     #Son los pos tags más frecuentemente insertados
@@ -330,7 +330,7 @@ def main():
 
     # ALL
     #pos_tag_del = {'DET': 0.28, 'NOUN':0.10, 'ADP': 0.22, 'CCONJ': 0.09, 'PRON': 0.10, 'AUX': 0.05}
-    #pos_tag_sust = {'VERB':0.21, 'NOUN':0.28, 'ADJ':0.14, 'DET':0.12, 'ADP':0.06}
+    #pos_tag_sub = {'VERB':0.21, 'NOUN':0.28, 'ADJ':0.14, 'DET':0.12, 'ADP':0.06}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     #target_pos_ins = {'NOUN':0.29, 'DET':0.19, 'ADJ':0.08, 'VERB':0.10, 'ADP':0.06}
     #Son los pos tags más frecuentemente insertados
@@ -341,7 +341,7 @@ def main():
 
     # PRIMERO
     #pos_tag_del = {'DET': 0.27, 'NOUN':0.08, 'ADP': 0.29, 'CCONJ': 0.05, 'PRON': 0.10, 'AUX': 0.05}
-    #pos_tag_sust = {'VERB':0.24, 'NOUN':0.24, 'ADJ':0.19, 'DET':0.11, 'ADP':0.08}
+    #pos_tag_sub = {'VERB':0.24, 'NOUN':0.24, 'ADJ':0.19, 'DET':0.11, 'ADP':0.08}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     #target_pos_ins = {'NOUN':0.28, 'DET':0.22, 'ADJ':0.02, 'VERB':0.12, 'ADP':0.07}
     #Son los pos tags más frecuentemente insertados
@@ -352,7 +352,7 @@ def main():
 
     # TERCERO
     #pos_tag_del = {'DET': 0.18, 'NOUN':0.13, 'ADP': 0.17, 'CCONJ': 0.16, 'PRON': 0.06, 'AUX': 0.02}
-    #pos_tag_sust = {'VERB':0.22, 'NOUN':0.41, 'ADJ':0.12, 'DET':0.11, 'ADP':0.05}
+    #pos_tag_sub = {'VERB':0.22, 'NOUN':0.41, 'ADJ':0.12, 'DET':0.11, 'ADP':0.05}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     #target_pos_ins = {'NOUN':0.35, 'DET':0.21, 'ADJ':0.08, 'VERB':0.09, 'ADP':0.04}
     #Son los pos tags más frecuentemente insertados
@@ -363,7 +363,7 @@ def main():
 
     # QUINTO
     pos_tag_del = {'DET': 0.42, 'NOUN':0.12, 'ADP': 0.13, 'CCONJ': 0.08, 'PRON': 0.24, 'AUX': 0.02}
-    pos_tag_sust = {'VERB':0.17, 'NOUN':0.17, 'ADJ':0.12, 'DET':0.18, 'ADP':0.06}
+    pos_tag_sub = {'VERB':0.17, 'NOUN':0.17, 'ADJ':0.12, 'DET':0.18, 'ADP':0.06}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     target_pos_ins = {'NOUN':0.25, 'DET':0.11, 'ADJ':0.17, 'VERB':0.08, 'ADP':0.07}
     #Son los pos tags más frecuentemente insertados
@@ -377,7 +377,7 @@ def main():
     
     methods_all = [
         ('DEL', lambda s: dg.generate_DEL(s, pos_tag_del)),
-        ('SUST', lambda s: dg.generate_SUST(s, pos_tag_sust)),
+        ('SUB', lambda s: dg.generate_SUB(s, pos_tag_sub)),
         ('INS', lambda s: dg.generate_INS(s, insertion_probs, target_pos_ins)),
         ('CUT', lambda s: dg.generate_CUT(s, 0, pos_tag_cut)),
         ('REP', lambda s: dg.generate_REP(s, pos_tag_rep)),

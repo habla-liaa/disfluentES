@@ -1,5 +1,5 @@
 include "config/base_words.gin"
-include "config/base_pos.gin"
+include "config/base_probs.gin"
 
 # TERCERO level focuses on repetitions, cuts, and prefix alterations
 SpanishDisfluencyGenerator.del_pos_probs = {
@@ -10,7 +10,7 @@ SpanishDisfluencyGenerator.del_pos_probs = {
     'ADJ': 0.15
 }
 
-SpanishDisfluencyGenerator.sust_pos_probs = {
+SpanishDisfluencyGenerator.sub_pos_probs = {
     'VERB': {
         'misspelling': 0.3,
         'inflection': 0.4,
@@ -72,6 +72,6 @@ SpanishDisfluencyGenerator.disfluency_type_probs = {
     'PRE': 0.246,  # PRE: 24.608968
     'CUT': 0.006,  # RC: 0.625652
     'REP': 0.219,  # REP: 21.897810
-    'SUST': 0.317  # S: 31.699687
+    'SUB': 0.317  # S: 31.699687
 }
 

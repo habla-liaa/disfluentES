@@ -1,12 +1,12 @@
 # Generator settings
 
 include "config/base_words.gin"
-include "config/base_pos.gin" 
+include "config/base_probs.gin"
 
 
 # use these settings for primero
 #pos_tag_del = {'DET': 0.27, 'NOUN':0.08, 'ADP': 0.29, 'CCONJ': 0.05, 'PRON': 0.10, 'AUX': 0.05}
-#pos_tag_sust = {'VERB':0.24, 'NOUN':0.24, 'ADJ':0.19, 'DET':0.11, 'ADP':0.08}
+#pos_tag_sub = {'VERB':0.24, 'NOUN':0.24, 'ADJ':0.19, 'DET':0.11, 'ADP':0.08}
 #Target pos es el pos tag que aparece más frecuentemente después de una inserción
 #target_pos_ins = {'NOUN':0.28, 'DET':0.22, 'ADJ':0.02, 'VERB':0.12, 'ADP':0.07}
 #Son los pos tags más frecuentemente insertados
@@ -24,7 +24,7 @@ SpanishDisfluencyGenerator.del_pos_probs = {
     'AUX': 0.05
 }
 
-SpanishDisfluencyGenerator.sust_pos_probs = {
+SpanishDisfluencyGenerator.sub_pos_probs = {
     'VERB':0.24,
     'NOUN':0.24,
     'ADJ':0.19,
@@ -82,5 +82,5 @@ SpanishDisfluencyGenerator.disfluency_type_probs = {
     'PRE': 0.219,  # PRE: 21.909091
     'CUT': 0.005,  # RC: 0.454545
     'REP': 0.295,  # REP: 29.454545
-    'SUST': 0.228  # S: 22.818182
+    'SUB': 0.228  # S: 22.818182
 }

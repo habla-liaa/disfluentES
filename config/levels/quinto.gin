@@ -1,5 +1,5 @@
 include "config/base_words.gin"
-include "config/base_pos.gin" 
+include "config/base_probs.gin"
 
 SpanishDisfluencyGenerator.del_pos_probs = {
     'DET': 0.15,
@@ -10,7 +10,7 @@ SpanishDisfluencyGenerator.del_pos_probs = {
     'PRON': 0.05
 }
 
-SpanishDisfluencyGenerator.sust_pos_probs = {
+SpanishDisfluencyGenerator.sub_pos_probs = {
     'VERB': {
         'misspelling': 0.2,
         'inflection': 0.5,
@@ -74,5 +74,5 @@ SpanishDisfluencyGenerator.disfluency_type_probs = {
     'PRE': 0.274,  # PRE: 27.369542
     'CUT': 0.003,  # RC: 0.319489
     'REP': 0.264,  # REP: 26.411076
-    'SUST': 0.264  # S: 26.411076
+    'SUB': 0.264  # S: 26.411076
 }

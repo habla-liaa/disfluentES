@@ -7,7 +7,7 @@ A Python tool for generating natural disfluencies in Spanish text, simulating sp
 ### Disfluency Types
 - **Deletions (DEL)**: Omission of words (e.g., "El gato duerme" → "gato duerme")
 - **Phonological Changes (PHO)**: Sound alterations (e.g., "casa" → "caza")
-- **Substitutions (SUST)**: Word replacements with similar meaning or form
+- **Substitutions (SUB)**: Word replacements with similar meaning or form
   - Inflection changes (gender, number, tense)
   - Similar word substitutions
   - Misspellings

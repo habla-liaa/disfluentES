@@ -18,7 +18,7 @@ class SpanishDisfluencyGenerator:
             self.prepositions = ["de", "a", "en"]
             self.conjunctions = ["y", "que"]
             self.disc_markers = ["ay", "perdón", "ya", "digo"]
-            self.phoneme_sust = {'c':'g', 
+            self.phoneme_sub = {'c':'g', 
                                  'd':'t'}
             self.vowels = set('aeiouáéíóúüAEIOUÁÉÍÓÚÜ')
         
@@ -45,7 +45,7 @@ class SpanishDisfluencyGenerator:
     
             return sentence
         
-        def generate_SUST(self, sentence:str, pos_tag : dict)->str:
+        def generate_SUB(self, sentence:str, pos_tag : dict)->str:
 
             if not sentence.strip():
                 return sentence
@@ -54,11 +54,11 @@ class SpanishDisfluencyGenerator:
             result = words.copy()
             metadata = self.nlp(sentence)
 
-            sust_candidates = [(i, pos_tag[token.pos_]) for i, token in enumerate(metadata) 
+            sub_candidates = [(i, pos_tag[token.pos_]) for i, token in enumerate(metadata) 
                      if token.pos_ in pos_tag]
             
-            if sust_candidates:
-                idxs, probs = zip(*sust_candidates)
+            if sub_candidates:
+                idxs, probs = zip(*sub_candidates)
                 word_idx = random.choices(idxs, weights=probs)[0]
                 token = metadata[word_idx]
 
@@ -287,7 +287,7 @@ def main():
     sentences = [s.strip() for s in text.split('.') if s.strip()]
 
     #pos_tag_del = {'DET': 0.35, 'NOUN':0.10, 'ADP': 0.15, 'CCONJ': 0.15, 'PRON': 0.10, 'AUX': 0.05}
-    #pos_tag_sust = {'VERB':0.25, 'NOUN':0.20, 'ADJ':0.15, 'DET':0.12, 'ADP':0.08}
+    #pos_tag_sub = {'VERB':0.25, 'NOUN':0.20, 'ADJ':0.15, 'DET':0.12, 'ADP':0.08}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     #target_pos_ins = {'NOUN':0.35, 'DET':0.25, 'ADJ':0.20, 'VERB':0.15, 'ADP':0.05}
     #Son los pos tags más frecuentemente insertados
@@ -298,7 +298,7 @@ def main():
 
     # ALL
     #pos_tag_del = {'DET': 0.28, 'NOUN':0.10, 'ADP': 0.22, 'CCONJ': 0.09, 'PRON': 0.10, 'AUX': 0.05}
-    #pos_tag_sust = {'VERB':0.21, 'NOUN':0.28, 'ADJ':0.14, 'DET':0.12, 'ADP':0.06}
+    #pos_tag_sub = {'VERB':0.21, 'NOUN':0.28, 'ADJ':0.14, 'DET':0.12, 'ADP':0.06}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     #target_pos_ins = {'NOUN':0.29, 'DET':0.19, 'ADJ':0.08, 'VERB':0.10, 'ADP':0.06}
     #Son los pos tags más frecuentemente insertados
@@ -309,7 +309,7 @@ def main():
 
     # PRIMERO
     #pos_tag_del = {'DET': 0.27, 'NOUN':0.08, 'ADP': 0.29, 'CCONJ': 0.05, 'PRON': 0.10, 'AUX': 0.05}
-    #pos_tag_sust = {'VERB':0.24, 'NOUN':0.24, 'ADJ':0.19, 'DET':0.11, 'ADP':0.08}
+    #pos_tag_sub = {'VERB':0.24, 'NOUN':0.24, 'ADJ':0.19, 'DET':0.11, 'ADP':0.08}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     #target_pos_ins = {'NOUN':0.28, 'DET':0.22, 'ADJ':0.02, 'VERB':0.12, 'ADP':0.07}
     #Son los pos tags más frecuentemente insertados
@@ -320,7 +320,7 @@ def main():
 
     # TERCERO
     #pos_tag_del = {'DET': 0.18, 'NOUN':0.13, 'ADP': 0.17, 'CCONJ': 0.16, 'PRON': 0.06, 'AUX': 0.02}
-    #pos_tag_sust = {'VERB':0.22, 'NOUN':0.41, 'ADJ':0.12, 'DET':0.11, 'ADP':0.05}
+    #pos_tag_sub = {'VERB':0.22, 'NOUN':0.41, 'ADJ':0.12, 'DET':0.11, 'ADP':0.05}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     #target_pos_ins = {'NOUN':0.35, 'DET':0.21, 'ADJ':0.08, 'VERB':0.09, 'ADP':0.04}
     #Son los pos tags más frecuentemente insertados
@@ -331,7 +331,7 @@ def main():
 
     # QUINTO
     pos_tag_del = {'DET': 0.42, 'NOUN':0.12, 'ADP': 0.13, 'CCONJ': 0.08, 'PRON': 0.24, 'AUX': 0.02}
-    pos_tag_sust = {'VERB':0.17, 'NOUN':0.17, 'ADJ':0.12, 'DET':0.18, 'ADP':0.06}
+    pos_tag_sub = {'VERB':0.17, 'NOUN':0.17, 'ADJ':0.12, 'DET':0.18, 'ADP':0.06}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
     target_pos_ins = {'NOUN':0.25, 'DET':0.11, 'ADJ':0.17, 'VERB':0.08, 'ADP':0.07}
     #Son los pos tags más frecuentemente insertados
@@ -345,7 +345,7 @@ def main():
     
     methods_all = [
         ('DEL', lambda s: dg.generate_DEL(s, pos_tag_del)),
-        ('SUST', lambda s: dg.generate_SUST(s, pos_tag_sust)),
+        ('SUB', lambda s: dg.generate_SUB(s, pos_tag_sub)),
         ('INS', lambda s: dg.generate_INS(s, insertion_probs, target_pos_ins)),
         ('CUT', lambda s: dg.generate_CUT(s, 0, pos_tag_cut)),
         ('REP', lambda s: dg.generate_REP(s, pos_tag_rep)),

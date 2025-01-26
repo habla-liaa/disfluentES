@@ -20,13 +20,17 @@ class SpanishDisfluencyGenerator:
                  disfluency_type_probs: Dict[str, float] = None,
                  del_pos_probs: Dict[str, float] = None,
                  pho_pos_probs: Dict[str, float] = None,
-                 sust_pos_probs: Dict[str, Dict[str, float]] = None,
+                 sub_pos_probs: Dict[str, Dict[str, float]] = None,
+                 sub_type_probs: Dict[str, Dict[str, float]] = None,
+                 noun_inflection_probs: Dict[str, float] = None,
+                 articles_map: Dict[str, List[str]] = None,
                  ins_type_probs: Dict[str, float] = None,
                  ins_target_pos: Dict[str, float] = None,
                  cut_pos_probs: Dict[str, float] = None,
                  rep_pos_probs: Dict[str, float] = None,
                  rep_order_probs: Dict[int, float] = None,
                  pre_pos_probs: Dict[str, float] = None,
+                 pre_type_probs: Dict[str, float] = None,
                  articles: List[str] = None,
                  prepositions: List[str] = None,
                  conjunctions: Dict[str, List[str]] = None,
@@ -41,13 +45,16 @@ class SpanishDisfluencyGenerator:
             disfluency_type: Dictionary mapping disfluency types to their probabilities
             del_pos_probs: POS tag probabilities for deletion
             pho_pos_probs: POS tag probabilities for phonological changes
-            sust_pos_probs: POS tag and type probabilities for substitution
+            sub_pos_probs: POS tag and type probabilities for substitution
+            sub_type_probs: Substitution type probabilities
+            noun_inflection_probs: Probabilities for noun inflection
             ins_type_probs: Probabilities for insertion types
             ins_target_pos: Target POS probabilities for insertion
             cut_pos_probs: POS tag probabilities for cutting
             rep_pos_probs: POS tag probabilities for repetition
             rep_order_probs: Probabilities for repetition order
             pre_pos_probs: POS tag probabilities for prefix alteration
+            pre_type_probs: Probabilities for prefix alteration type
             articles: List of articles to use for insertions
             prepositions: List of prepositions to use for insertions
             conjunctions: Dictionary mapping conjunction types to lists of conjunctions
@@ -69,7 +76,7 @@ class SpanishDisfluencyGenerator:
         self.disfluency_type_probs = disfluency_type_probs or {
             'DEL': 0.069,
             'PHO': 0.035,
-            'SUST': 0.267,
+            'SUB': 0.267,
             'INS': 0.116,
             'CUT': 0.466,
             'REP': 0.26,
@@ -79,13 +86,16 @@ class SpanishDisfluencyGenerator:
         # Load POS probabilities from gin config
         self.del_pos_probs = del_pos_probs or {}
         self.pho_pos_probs = pho_pos_probs or {}
-        self.sust_pos_probs = sust_pos_probs or {}
+        self.sub_pos_probs = sub_pos_probs or {}
+        self.sub_type_probs = sub_type_probs or {}
+        self.noun_inflection_probs = noun_inflection_probs or {}
         self.ins_type_probs = ins_type_probs or {}
         self.ins_target_pos = ins_target_pos or {}
         self.cut_pos_probs = cut_pos_probs or {}
         self.rep_pos_probs = rep_pos_probs or {}
         self.rep_order_probs = rep_order_probs or {}
         self.pre_pos_probs = pre_pos_probs or {}
+        self.pre_type_probs = pre_type_probs or {}
         
         # Load substitution alteration subclass probabilities
         self.substitution_alteration_subclass = substitution_alteration_subclass or {
@@ -101,7 +111,7 @@ class SpanishDisfluencyGenerator:
         self.discourse_markers = discourse_markers or []
         self.fillers = fillers or []
         self.char_patterns = char_patterns or default_char_patterns
-        
+        self.articles_map = articles_map or {}
     def parse_text(self, text: str) -> spacy.tokens.Doc:
         """Parse the input text into a spacy Doc object."""
         doc = self.nlp(text)
@@ -120,7 +130,7 @@ class SpanishDisfluencyGenerator:
             text: Input text to add disfluencies to
             num_repetitions: Number of disfluencies to apply (defaults to max_repetitions)
             disfluency_type: List of specific disfluency types to apply in order.
-                           Available types: ['DEL', 'PHO', 'SUST', 'INS', 'CUT', 'REP', 'PRE', 'FILL']
+                           Available types: ['DEL', 'PHO', 'SUB', 'INS', 'CUT', 'REP', 'PRE', 'FILL']
             disfluency_type_probs: List of specific disfluency types to apply in order.
 
         Returns:
@@ -157,7 +167,7 @@ class SpanishDisfluencyGenerator:
             return self._apply_deletion(text, doc)
         elif disfluency == 'PHO':
             return self._apply_phonological(text, doc)
-        elif disfluency == 'SUST':
+        elif disfluency == 'SUB':
             return self._apply_substitution(text, doc)
         elif disfluency == 'INS':
             return self._apply_insertion(text, doc)
@@ -234,224 +244,55 @@ class SpanishDisfluencyGenerator:
     
     def _apply_substitution(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word substitution disfluency. Ensures at least one substitution occurs."""
-        original_text = text
-        max_attempts = 3
         
-        for _ in range(max_attempts):
-            candidates = [(i, token) for i, token in enumerate(doc) if token.pos_ in self.sust_pos_probs and (token.has_vector or token.pos_ in ['DET', 'ADP'])]
-            if not candidates:
-                candidates = [(i, token) for i, token in enumerate(doc)]
-            
-            idx, token = random.choice(candidates)
-            words = text.split()
-            
-            sub_type = random.choices(list(self.substitution_alteration_subclass.keys()),
-                                    weights=list(self.substitution_alteration_subclass.values()))[0]
-            if not isinstance(token, spacy.tokens.Token):
-                continue
-
-            if token.pos_ in ['VERB', 'AUX']:
-                if sub_type == 'inflection' and token.morph: 
-                    try: 
-                        if token.morph.get('VerbForm') == ['Fin']:
-                            number = 'Sing' if 'Plur' in token.morph.get('Number',[]) else 'Plur'
-                            inflected = token._.inflect({'Number': number})
-                            if inflected:
-                                words[idx] = inflected
-                        else:
-                            inflected = token.lemma_ if token.text != token.lemma_ else token._.inflect('VerbForm=Fin')
-                            if inflected:
-                                words[idx] = inflected
-                    except: 
-                        continue
-                elif sub_type == 'similarity' and token.has_vector and token.vector_norm > 0:
-                    similar_words = []
-                    for lex in token.doc.vocab:
-                        if (lex.has_vector and lex.vector_norm > 0 and lex.cluster == token.cluster and  # Use cluster ID to filter similar words
-                        token.similarity(lex) > 0.5):
-                            similar_words.append(lex.text)
-
-                    if similar_words:
-                        words[idx] = random.choice(similar_words)
-                else:  # misspelling
-                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-                
-            elif token.pos_ in ['NOUN', 'ADJ']:
-                if sub_type == 'inflection' and token.morph:
-                    try:
-                        change_type = random.choice(['number', 'gender'])
-                        if change_type == 'number':
-                            number = 'Sing' if 'Plur' in token.morph.get('Number',[]) else 'Plur'
-                            inflected = token._.inflect({'Number': number})
-                            if inflected:
-                                words[idx] = inflected
-                        else:
-                            gender = 'Fem' if 'Masc' in token.morph.get('Gender', []) else 'Masc'
-                            inflected = token._.inflect({'Gender': gender})
-                            if inflected:
-                                words[idx] = inflected
-                    except:
-                        continue
-                elif sub_type == 'similarity' and token.has_vector and token.vector_norm > 0:
-                    similar_words = []
-
-                    for lex in token.doc.vocab:
-                        if (lex.has_vector and lex.vector_norm > 0 and lex.cluster == token.cluster and  # Use cluster ID to filter similar words
-                        token.similarity(lex) > 0.5):
-                            similar_words.append(lex.text)
-                    if similar_words:
-                        words[idx] = random.choice(similar_words)
-                else:
-                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-                
-            elif token.pos_ == 'DET':
-                det_map = {
-                    'la': 'una', 'una': 'la',
-                    'el': 'un', 'un': 'el',
-                    'los': 'unos', 'unos': 'los',
-                    'las': 'unas', 'unas': 'las'
-                }
-                if token.text.lower() in det_map:
-                    words[idx] = det_map[token.text.lower()]
-                else:
-                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)   
-            elif token.pos_ == 'ADP':
-                prepositions = ['de', 'en', 'a', 'por', 'para', 'con', 'sin']
-                if token.text in prepositions:
-                    available_preps = [p for p in prepositions if p != token.text]
-                    words[idx] = random.choice(available_preps)
-                else:
-                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-            result = ' '.join(words)
-            if result != original_text:
-                return result
-
-
-
-    '''
-    def _apply_substitution(self, text: str, doc: spacy.tokens.Doc) -> str:
-        """Apply word substitution disfluency."""
-        # Get candidates based on POS
-        candidates = [(i, token) for i, token in enumerate(doc) 
-                     if token.pos_ in self.sust_pos_probs]
-        
+        candidates = [(i, token) for i, token in enumerate(doc) if token.pos_ in self.sub_pos_probs]
         if not candidates:
             candidates = [(i, token) for i, token in enumerate(doc)]
         
-        
-        idx, token = random.choice(candidates)
         words = text.split()
+        
+        weights = [self.sub_pos_probs[token.pos_] for _, token in candidates]
+        idx, token = random.choices(candidates, weights=weights)[0]
 
-        # if token pos is not in sust_pos_probs, return phonological error
-        if token.pos_ not in self.sust_pos_probs:
-            words[idx] = phonological.substitute_char(token.text, self.char_patterns)
+        sub_type = random.choices(list(self.sub_type_probs[token.pos_].keys()),
+                                weights=list(self.sub_type_probs[token.pos_].values()))[0]
         
-        # Get substitution type probabilities for this POS
-        sub_type = random.choices(list(self.substitution_alteration_subclass.keys()),
-                                    weights=list(self.substitution_alteration_subclass.values()))[0]
-        
-        # Apply substitution based on type and POS
-        if token.pos_ in ['VERB', 'AUX']:
-            if sub_type == 'inflection':
-                # Change verb number or tense
-                try:
-                    if token.morph.get('VerbForm') == ['Fin']:
-                        number = 'Sing' if 'Plur' in token.morph.get('Number',[]) else 'Plur'
-                        inflected = token._.inflect({'Number': number})
-                        if inflected:
-                            words[idx] = inflected
-                    else:
-                        inflected = token.lemma_ if token.text != token.lemma_ else token._.inflect('VerbForm=Fin')
-                        if inflected:
-                            words[idx] = inflected
-                except:
-                    # Fallback to misspelling
-                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-            
-            elif sub_type == 'similarity':
-                # Use vector similarity for similar verbs
-                if token.has_vector and token.vector_norm > 0:
-                    similar_words = []
-                    for word in token.vocab:
-                        if word.has_vector and word.vector_norm > 0 and word.pos_ == token.pos_:
-                            similarity = token.similarity(word)
-                            if similarity > 0.5 and similarity < 1.0:
-                                similar_words.append(word.text)
-                    if similar_words:
-                        words[idx] = random.choice(similar_words)
-                else:
-                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-            else:  # misspelling
-                words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-            
-        elif token.pos_ in ['NOUN', 'ADJ']:
-            if sub_type == 'inflection':
-                try:
-                    # Randomly choose between number and gender changes
-                    change_type = random.choice(['number', 'gender'])
-                    if change_type == 'number':
-                        number = 'Sing' if 'Plur' in token.morph.get('Number',[]) else 'Plur'
-                        inflected = token._.inflect({'Number': number})
-                        if inflected:
-                            words[idx] = inflected
-                    else:  # gender
-                        gender = 'Fem' if 'Masc' in token.morph.get('Gender', []) else 'Masc'
-                        inflected = token._.inflect({'Gender': gender})
-                        if inflected:
-                            words[idx] = inflected
-                except:
-                    # Fallback to simple gender changes
-                    word = token.text
-                    if word.endswith('o'): 
-                        words[idx] = word[:-1] + 'a'
-                    elif word.endswith('a'): 
-                        words[idx] = word[:-1] + 'o'
-            elif sub_type == 'similarity':
-                # Use vector similarity for similar nouns/adjectives
-                
-                
-                if token.has_vector and token.vector_norm > 0:
-                    similar_words = []
-                    for word in token.vocab:
-                        embed()
-                        if word.has_vector and word.vector_norm > 0 and word.pos_ == token.pos_:
-                            similarity = token.similarity(word)
-                            if similarity > 0.5 and similarity < 1.0:
-                                similar_words.append(word.text)
-                    if similar_words:
-                        words[idx] = random.choice(similar_words)
-               
-                else:
-                    words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-            else:  # misspelling
-                words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-            
-        elif token.pos_ == 'DET':
-            # Map between definite and indefinite articles
-            det_map = {
-                'la': 'una', 'una': 'la',
-                'el': 'un', 'un': 'el',
-                'los': 'unos', 'unos': 'los',
-                'las': 'unas', 'unas': 'las'
-            }
-            if token.text.lower() in det_map:
-                words[idx] = det_map[token.text.lower()]
+        if token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'inflection': 
+            words[idx] = text_ops.do_inflection(token, self.noun_inflection_probs)
+        elif token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'similarity':
+            words[idx] = text_ops.do_similarity(token, self.similarity_threshold)
+        elif token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'misspelling':
+            words[idx] = text_ops.do_misspelling(token)           
+        elif sub_type == 'misspelling':
+            words[idx] = phonological.misspell_word(token.text, self.char_patterns)               
+        elif token.pos_ == 'DET':                
+            if token.text.lower() in self.articles_map:
+                words[idx] = random.choice(self.articles_map[token.text.lower()]) 
             else:
-                words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-            
+                raise ValueError(f"Det map not found for {token.text}")
         elif token.pos_ == 'ADP':
-            # Substitute prepositions
-            prepositions = ['de', 'en', 'a', 'por', 'para', 'con', 'sin']
-            if token.text in prepositions:
-                available_preps = [p for p in prepositions if p != token.text]
+            if token.text in self.prepositions:
+                available_preps = [p for p in self.prepositions if p != token.text]
                 words[idx] = random.choice(available_preps)
             else:
-                words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-        else:
-            words[idx] = phonological.substitute_char(token.text, self.char_patterns)
-                
-        return ' '.join(words)
-    '''
+                words[idx] = random.choice(self.prepositions)
+        elif token.pos_ == 'CCONJ':
+            if token.text in self.conjunctions['CCONJ']:
+                available_conjunctions = [c for c in self.conjunctions['CCONJ'] if c != token.text] 
+                words[idx] = random.choice(available_conjunctions)
+            else:
+                words[idx] = random.choice(self.conjunctions['CCONJ'])
+        elif token.pos_ == 'SCONJ':
+            if token.text in self.conjunctions['SCONJ']:
+                available_conjunctions = [c for c in self.conjunctions['SCONJ'] if c != token.text]
+                words[idx] = random.choice(available_conjunctions)
+            else:
+                words[idx] = random.choice(self.conjunctions['SCONJ'])
+
+        result = ' '.join(words)
+        
+        return result
+
     def _apply_insertion(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply word insertion disfluency."""
         words = text.split()
@@ -515,8 +356,7 @@ class SpanishDisfluencyGenerator:
         weights = [self.cut_pos_probs[token.pos_] for _, token in candidates]
         idx, token = random.choices(candidates, weights=weights)[0]
         
-        words = text.split()
-        
+        words = text.split()        
         words[idx] = text_ops.cut_word(token)        
         return ' '.join(words)
         
@@ -544,21 +384,31 @@ class SpanishDisfluencyGenerator:
         
     def _apply_precorrection(self, text: str, doc: spacy.tokens.Doc) -> str:
         """Apply precorrection disfluency."""
+
+        if len(text.strip()) == 0:
+            return text
+
         candidates = [(i, token) for i, token in enumerate(doc)
                      if token.pos_ in self.pre_pos_probs and len(token.text) > 4]
                      
         if not candidates:
             return text
             
+        # Pre type
+        pre_type = random.choices(list(self.pre_type_probs.keys()),
+                                weights=list(self.pre_type_probs.values()))[0]
+        
         # Weight by POS probability
         weights = [self.pre_pos_probs[token.pos_] for _, token in candidates]
         idx, token = random.choices(candidates, weights=weights)[0]
-        
+
         words = text.split()
-        # Alter the prefix (first 2-3 characters)
-        prefix_len = random.randint(2, 3)
-        if len(token.text) > prefix_len:
-            words[idx] = phonological.substitute_char(token.text[:prefix_len], self.char_patterns) + token.text[prefix_len:]
+        if pre_type == 'CUT':
+            words.insert(idx, text_ops.cut_word(token, cut_from_start=False, chars=True))
+        elif pre_type == 'POS_CUT':
+            words.insert(idx, text_ops.cut_word(token, cut_from_start=True, chars=True))
+        elif pre_type == 'PRE':
+            raise NotImplementedError("Pre correction not implemented")
             
         return ' '.join(words)
         

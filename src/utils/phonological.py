@@ -3,6 +3,9 @@
 import random
 import gin
 
+def do_misspell_word(word: str, char_patterns: dict) -> str:
+    """Misspell a word based on phonological patterns."""
+    raise NotImplementedError
 
 @gin.configurable
 def substitute_char(word: str, char_patterns: dict) -> str:

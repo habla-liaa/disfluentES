@@ -1,2 +1,2 @@
 include "config/base_words.gin"
-include "config/base_pos.gin"
+include "config/base_probs.gin"

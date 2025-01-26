@@ -9,8 +9,18 @@ SpanishDisfluencyGenerator.discourse_markers = ['ay', 'perdón', 'ya', 'digo', '
 
 SpanishDisfluencyGenerator.fillers = ['e', 'a', 'em', 'ah']
 
-SpanishDisfluencyGenerator.substitution_alteration_subclass = {'misspelling': 0.3, 'inflection': 0.5, 'similarity': 0.2}
 
+SpanishDisfluencyGenerator.articles_map = {
+                    'la': ['una','lo','las'],
+                    'una': ['la','unas','las'],
+                    'el': ['un','los','la'],
+                    'un': ['el','unos','una','unas'],
+                    'lo': ['los','la','las'],
+                    'los': ['lo','unos','las'],
+                    'las': ['unas','los','la'],
+                    'unas': ['las','un','la', 'unos']
+                    'unos': ['los','un','unas']
+                }
 
 SpanishDisfluencyGenerator.char_patterns = {
     'substitutions': {
