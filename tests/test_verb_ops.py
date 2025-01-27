@@ -21,7 +21,7 @@ def test_get_mlconjug_params_present():
     """Test get_mlconjug_params with present tense verb"""
     token = nlp('pienso')[0]  # 1st person singular present
     print(token.morph.to_dict())
-    mood, tense, person = get_mlconjug_params(token)
+    mood, tense, person = get_mlconjug_params(token.morph.to_dict())
     print(mood, tense, person)
     assert mood == 'Indicativo'
     assert 'Presente' in tense

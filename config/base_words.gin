@@ -18,7 +18,7 @@ SpanishDisfluencyGenerator.articles_map = {
                     'lo': ['los','la','las'],
                     'los': ['lo','unos','las'],
                     'las': ['unas','los','la'],
-                    'unas': ['las','un','la', 'unos']
+                    'unas': ['las','un','la', 'unos'],
                     'unos': ['los','un','unas']
                 }
 

@@ -1,10 +1,10 @@
 """Text operations for Spanish disfluency generation."""
 
 import random
-import gin
 import spacy
 from typing import Union
 from difflib import get_close_matches
+from utils.verb_ops import conjugate_verb
 
 
 def cut_word(
@@ -66,7 +66,6 @@ def repeat_words(sentence: str, idx: int, order: int) -> str:
     return " ".join(words)
 
 
-@gin.configurable
 def do_similarity(
     word: spacy.tokens.Doc,
     nlp: spacy.language.Language,
@@ -87,41 +86,53 @@ def do_similarity(
     return random.choice(similar_words)
 
 
-def do_inflection(word: spacy.tokens.Doc, noun_inflection_probs: dict) -> str:
+def do_inflection(
+    word: spacy.tokens.Doc, noun_inflection_probs: dict, verb_conjugation_probs: dict
+) -> str:
     """Inflect a word based on its morphological features."""
+
+    morph = word.morph.to_dict()
+
+    # If noun, inflect noun form
+    if word.pos_ == "NOUN":
+        return inflect_noun(word, noun_inflection_probs)
+
 
     # If verb, inflect verb form
     if word.pos_ in ["VERB", "AUX"]:
-        if word.has_morph() and word.morph.get("VerbForm") == ["Fin"]:
-            number = "Sing" if "Plur" in word.morph.get("Number", []) else "Plur"
-            inflected = word._.inflect({"Number": number})
-            return inflected
-        else:
-            inflected = (
-                word.lemma_
-                if word.text != word.lemma_
-                else word._.inflect("VerbForm=Fin")
+
+        # if gerundio conjugate verb to any random form
+        if morph["VerbForm"] == "Ger":
+            number = random.choice(["Sing", "Plur"])
+            tense = random.choice(["Pres", "Imp", "Past", "Fut"])
+            mood = random.choice(["Ind", "Sub", "Imp"])
+            person = random.choice(["1", "2", "3"])
+            return conjugate_verb(
+                word,
+                change_number=number,
+                change_tense=tense,
+                change_mood=mood,
+                change_person=person,
             )
-            return inflected
 
-    elif word.pos_ in ["NOUN", "ADJ"]:
         change_type = random.choices(
-            list(noun_inflection_probs.keys()), weights=noun_inflection_probs.values()
+            list(verb_conjugation_probs.keys()), weights=verb_conjugation_probs.values()
         )[0]
+        
+        if change_type == "change_number":
+            number = "Plur" if "Sing" in morph["Number"] else "Sing"
+            return conjugate_verb(word, change_number=number)
+        elif change_type == "change_person":
+            original_person = morph["Person"][0]
+            person = random.choice(["1", "2", "3"].pop(original_person))
+            return conjugate_verb(word, change_person=person)
+        elif change_type == "change_tense":
+            tense = "Past" if "Pres" in morph["Tense"] else "Pres"
+            return conjugate_verb(word, change_tense=tense)
+        elif change_type == "change_mood":
+            return conjugate_verb(word, change_mood="Sub")
 
-        if change_type == "number":
-            number = "Sing" if "Plur" in word.morph.get("Number", []) else "Plur"
-            inflected = word._.inflect({"Number": number})
-            return inflected
-        elif change_type == "gender":
-            gender = "Fem" if "Masc" in word.morph.get("Gender", []) else "Masc"
-            inflected = word._.inflect({"Gender": gender})
-            return inflected
 
-    return word
-
-
-@gin.configurable
 def insert_article(
     sentence: str, word_idx: int, gender: str, number: str, articles: list
 ) -> str:

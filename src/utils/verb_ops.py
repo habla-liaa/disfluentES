@@ -1,67 +1,39 @@
-import random
 from typing import Dict, Optional, Tuple
 from IPython import embed
 import spacy
 from mlconjug3 import Conjugator
-import pickle
+from src.utils.verb_forms_map import spacy_to_mlconjug3
 
 # Initialize Spanish conjugator
 conjugator = Conjugator(language='es')
 
-# Load spacy_to_mlconjug3
-with open("scripts/spacy_to_mlconjug3.pkl", "rb") as f:
-    spacy_to_mlconjug3 = pickle.load(f)
-
-
-# Map spaCy person to mlconjug3 person
-person_map = {
-        "1": {"Sing": "yo", "Plur": "nosotros"},
-        "2": {"Sing": "tú", "Plur": "vosotros"},
-        "3": {"Sing": "él", "Plur": "ellos"}
-    }
-
-# Map spaCy person and number to mlconjug3 person
-person_number_map = {
-                ("1", "Sing"): "yo",
-                ("2", "Sing"): "tú", 
-                ("3", "Sing"): "él",
-                ("1", "Plur"): "nosotros",
-                ("2", "Plur"): "vosotros",
-                ("3", "Plur"): "ellos"
-            }
-
-def get_mlconjug_params(token: spacy.tokens.Token) -> Tuple[str, str, str]:
+def get_mlconjug_params(morph: Dict) -> Tuple[str, str, str]:
     """Convert spaCy token morphology to mlconjug3 parameters.
     
     Args:
-        token: A spaCy token with verb morphology information
+        morph: A dictionary with verb morphology information
         
     Returns:
         Tuple of (mood, tense, person) for mlconjug3
     """
     
     # Get morphological information
-    morph = token.morph.to_dict()    
+    mood = morph["Mood"]
+    tense = morph["Tense"]
+    person = morph["Person"]
+    number = morph["Number"]
+    verb_form = morph["VerbForm"]
     
-    # Get mood
-    if "Mood" in morph and "Tense" in morph:
-        canditates = spacy_to_mlconjug3[(morph["Mood"], morph["Tense"])]    
+    try:
+        conjugation = spacy_to_mlconjug3[(verb_form, mood, tense, person, number)]
+    except KeyError:
+        raise ValueError(f"No conjugation found for morph {morph}")
     
-        peak = random.choice(canditates)
-        tense =peak['mood'] + peak['verb_form']
-        mood = peak['mood']
-    else:        
-        raise ValueError(f"No mood or tense found for {token.text} with morph {morph}")
-    
-    # Get person
-    if "Person" in morph and "Number" in morph:
-        person_num = morph["Person"]
-        number = morph["Number"]
-        person = person_map[person_num][number]
-    else:
-        raise ValueError(f"No person or number found for {token.text} with morph {morph}")
-    
-    return mood, tense, person
+    mood_mlconjug = conjugation["mood"]
+    tense_mlconjug = conjugation["mood"] + " "+conjugation["tense"]
+    person_mlconjug = conjugation["person"]
+
+    return mood_mlconjug, tense_mlconjug, person_mlconjug
 
 def conjugate_verb(token: spacy.tokens.Token, 
                   change_person: Optional[str] = None,
@@ -88,28 +60,32 @@ def conjugate_verb(token: spacy.tokens.Token,
     morph = token.morph.to_dict()
     
     try:
-        # Get current morphological information
-        mood, tense, person = get_mlconjug_params(token)
         
         # Apply requested changes
-        if change_person and change_number:
-            person = person_number_map.get((change_person, change_number), person)
-
+        if change_person:
+            person = change_person
+        if change_number:
+            number = change_number
         if change_tense:    
-            candidates = spacy_to_mlconjug3[(mood, change_tense)]    
-            peak = random.choice(candidates)
-            tense = peak['mood'] + peak['verb_form']
-
+            tense = change_tense
         if change_mood:
-            candidates = spacy_to_mlconjug3[(change_mood, tense)]    
-            peak = random.choice(candidates)
-            mood = peak['mood']
-        
+            mood = change_mood
+
+        morph = {
+            "Mood": mood,
+            "Tense": tense,
+            "Person": person,
+            "Number": number,
+            "VerbForm": "Fin"
+        }
+
+        mood_mlconjug, tense_mlconjug, person_mlconjug = get_mlconjug_params(morph)
+
         # Get conjugation table
         verb_conj = conjugator.conjugate(infinitive)
         
         # Get specific conjugation
-        conjugation = verb_conj.conjug_info[mood][tense][person]
+        conjugation = verb_conj.conjug_info[mood_mlconjug][tense_mlconjug][person_mlconjug]
         
         return conjugation
         

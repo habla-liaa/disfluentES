@@ -135,7 +135,7 @@ data = []
 for verb in verbos:
     d = {
         "verb": verb[3],
-        "verb_form": verb[1].replace(verb[0], ""),
+        "tense": verb[1].replace(verb[0], ""),
         "mood": verb[0],
         "person": verb[2],
     }
@@ -146,11 +146,15 @@ df = pd.DataFrame(data)
 
 df.to_csv("scripts/verbs_table.csv", index=False)
 
-print(df[["verb_form", "mood", "Mood","Tense"]].value_counts())
+df = pd.read_csv("scripts/verbs_table_real.csv")
 
-dfx = df[["verb_form", "mood", "Mood","Tense"]].value_counts().reset_index().drop("count",axis=1).set_index(["Mood", "Tense"]).sort_index()
 
-spacy_to_mlconjug3 = {k: g.to_dict(orient='records') for k, g in dfx.groupby(level=(0,1))}
+dfx = df[["VerbForm", "Mood","Tense","Person", "Number", "tense", "mood", "person"]].value_counts().reset_index().drop("count",axis=1).set_index(["VerbForm", "Mood","Tense","Person", "Number"]).sort_index()
+
+# spacy_to_mlconjug3 = {k: g.to_dict(orient='records') for k, g in dfx.groupby(level=(0,1))}
+spacy_to_mlconjug3 = dfx.T.to_dict()
+
+print(spacy_to_mlconjug3)
 
 # save pickle
 with open("scripts/spacy_to_mlconjug3.pkl", "wb") as f:
