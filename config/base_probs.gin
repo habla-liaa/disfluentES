@@ -56,6 +56,13 @@ SpanishDisfluencyGenerator.noun_inflection_probs = {
     'gender': 0.5
 }
 
+SpanishDisfluencyGenerator.verb_conjugation_probs = {
+    'change_number': 0.8,
+    'change_person': 0.1,
+    'change_tense': 0.05,
+    'change_mood': 0.05
+}
+
 SpanishDisfluencyGenerator.ins_type_probs = {
     'articles': 0.3,
     'prepositions': 0.3,

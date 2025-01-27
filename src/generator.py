@@ -23,6 +23,7 @@ class SpanishDisfluencyGenerator:
                  sub_pos_probs: Dict[str, Dict[str, float]] = None,
                  sub_type_probs: Dict[str, Dict[str, float]] = None,
                  noun_inflection_probs: Dict[str, float] = None,
+                 verb_conjugation_probs: Dict[str, float] = None,
                  articles_map: Dict[str, List[str]] = None,
                  ins_type_probs: Dict[str, float] = None,
                  ins_target_pos: Dict[str, float] = None,
@@ -48,6 +49,7 @@ class SpanishDisfluencyGenerator:
             sub_pos_probs: POS tag and type probabilities for substitution
             sub_type_probs: Substitution type probabilities
             noun_inflection_probs: Probabilities for noun inflection
+            verb_conjugation_probs: Probabilities for verb conjugation
             ins_type_probs: Probabilities for insertion types
             ins_target_pos: Target POS probabilities for insertion
             cut_pos_probs: POS tag probabilities for cutting
@@ -89,6 +91,7 @@ class SpanishDisfluencyGenerator:
         self.sub_pos_probs = sub_pos_probs or {}
         self.sub_type_probs = sub_type_probs or {}
         self.noun_inflection_probs = noun_inflection_probs or {}
+        self.verb_conjugation_probs = verb_conjugation_probs or {}
         self.ins_type_probs = ins_type_probs or {}
         self.ins_target_pos = ins_target_pos or {}
         self.cut_pos_probs = cut_pos_probs or {}
@@ -256,7 +259,7 @@ class SpanishDisfluencyGenerator:
                                 weights=list(self.sub_type_probs[token.pos_].values()))[0]
         
         if token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'inflection': 
-            words[idx] = text_ops.do_inflection(token, self.noun_inflection_probs)
+            words[idx] = text_ops.do_inflection(token, self.noun_inflection_probs, self.verb_conjugation_probs)
         elif token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'similarity':
             words[idx] = text_ops.do_similarity(token, self.nlp, **self.substitution_similarity_params)
         elif token.pos_ in ['VERB', 'AUX', 'NOUN', 'ADJ'] and sub_type == 'misspelling':
