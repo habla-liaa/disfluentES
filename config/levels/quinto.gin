@@ -1,6 +1,7 @@
 include "config/base_words.gin"
 include "config/base_probs.gin"
-include "config/base_substitutions.gin"
+include "config/base_substitution.gin"
+
 SpanishDisfluencyGenerator.del_pos_probs = {
     'DET': 0.15,
     'NOUN': 0.25,

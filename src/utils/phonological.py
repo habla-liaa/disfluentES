@@ -1,11 +1,10 @@
 """Phonological operations for Spanish disfluency generation."""
 
 import random
-import gin
 import spacy
 
 
-def do_misspell_word(word: spacy.tokens.Doc, char_patterns: dict) -> str:
+def misspell_word(word: spacy.tokens.Doc, char_patterns: dict) -> str:
     """Misspell a word based on phonological patterns.
     Split the word into syllables and randomly misspell one or two syllables using one or two of the following functions: substitute_char, insert_char, and delete_char.
     """
@@ -20,7 +19,7 @@ def do_misspell_word(word: spacy.tokens.Doc, char_patterns: dict) -> str:
     num_operations_to_apply = random.randint(1, 2)
 
     # select which operations to apply
-    operations = random.sample(['substitute_char', 'insert_char', 'delete_char'], num_operations_to_apply)
+    operations = random.sample([substitute_char, insert_char, delete_char], num_operations_to_apply)
 
     for syllable_idx in syllables_to_misspell:
         syllable = syllables[syllable_idx]

@@ -4,3 +4,11 @@ SpanishDisfluencyGenerator.substitution_similarity_params = {
     'vector_similarity': True,
     'close_matches': True
 }
+
+SpanishDisfluencyGenerator.verb_conjugation_probs = {
+    'change_number': 0.7,
+    'change_person': 0.05,
+    'change_tense': 0.1,
+    'change_mood': 0.05
+    'infinitive': 0.1
+}

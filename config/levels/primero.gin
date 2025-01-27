@@ -2,7 +2,7 @@
 
 include "config/base_words.gin"
 include "config/base_probs.gin"
-include "config/base_substitutions.gin"
+include "config/base_substitution.gin"
 
 # use these settings for primero
 #pos_tag_del = {'DET': 0.27, 'NOUN':0.08, 'ADP': 0.29, 'CCONJ': 0.05, 'PRON': 0.10, 'AUX': 0.05}
