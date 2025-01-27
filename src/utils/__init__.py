@@ -3,6 +3,7 @@ spacy_es_wrong_pos = {
     "elefante": {"POS": "NOUN", "Morph": "Gender=Masc|Number=Sing"},
     "perro": {"POS": "NOUN", "Morph": "Gender=Masc|Number=Sing"},
     "negro": {"POS": "ADJ", "Morph": "Gender=Masc|Number=Sing"},
+    "caminaren":{"POS":"ADJ", "Morph": "Gender=Masc|Number=Sing"}
 }
 
 default_char_patterns = {
