@@ -4,7 +4,7 @@ import random
 import spacy
 from typing import Union
 from difflib import get_close_matches
-from utils.verb_ops import conjugate_verb
+from src.utils.verb_ops import conjugate_verb
 
 
 def cut_word(
