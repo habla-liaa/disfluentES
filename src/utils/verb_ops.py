@@ -58,7 +58,13 @@ def conjugate_verb(token: spacy.tokens.Token,
     # Get base infinitive form
     infinitive = token.lemma_
     morph = token.morph.to_dict()
-    
+
+    mood = morph["Mood"]
+    tense = morph["Tense"]
+    person = morph["Person"]
+    number = morph["Number"]
+    verb_form = morph["VerbForm"]
+
     try:
         
         # Apply requested changes
