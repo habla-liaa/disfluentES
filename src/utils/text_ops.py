@@ -119,12 +119,16 @@ def do_inflection(
             list(verb_conjugation_probs.keys()), weights=verb_conjugation_probs.values()
         )[0]
         
+        
         if change_type == "change_number":
             number = "Plur" if "Sing" in morph["Number"] else "Sing"
             return conjugate_verb(word, change_number=number)
         elif change_type == "change_person":
             original_person = morph["Person"][0]
-            person = random.choice(["1", "2", "3"].pop(original_person))
+            print(original_person)
+            persons=["1", "2", "3"]
+            persons.remove(original_person)
+            person = random.choice(persons)
             return conjugate_verb(word, change_person=person)
         elif change_type == "change_tense":
             tense = "Past" if "Pres" in morph["Tense"] else "Pres"

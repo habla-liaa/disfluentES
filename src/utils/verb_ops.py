@@ -65,6 +65,15 @@ def conjugate_verb(token: spacy.tokens.Token,
     number = morph["Number"]
     verb_form = morph["VerbForm"]
 
+    # Exception because of the way argentinian Spanish is conjugated
+    if change_person:
+        if number == "Plur" and change_person in ["2", "3"]:
+            change_person = "1"
+    
+    if change_person:
+        if number == "Plur" and change_person == "1":
+            change_person = "3"
+
     try:
         
         # Apply requested changes
