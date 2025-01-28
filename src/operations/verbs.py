@@ -2,7 +2,7 @@ from typing import Dict, Optional, Tuple
 from IPython import embed
 import spacy
 from mlconjug3 import Conjugator
-from src.utils.verb_forms_map import spacy_to_mlconjug3
+from src.operations.verb_forms_map import spacy_to_mlconjug3
 
 # Initialize Spanish conjugator
 conjugator = Conjugator(language='es')

@@ -6,7 +6,7 @@ import spacy
 import gin
 from typing import Optional, Dict, List, Union, Set
 
-from .utils import phonological, text_ops, spacy_es_wrong_pos, default_char_patterns
+from .operations import phonological, text, spacy_es_wrong_pos, default_char_patterns
 
 from spacy_syllables import SpacySyllables
 
@@ -278,7 +278,7 @@ class SpanishDisfluencyGenerator:
         )[0]
 
         try:
-            words[idx] = text_ops.do_substitution(
+            words[idx] = text.do_substitution(
                 token,
                 sub_type,
                 self.nlp,
@@ -374,7 +374,7 @@ class SpanishDisfluencyGenerator:
         idx, token = random.choices(candidates, weights=weights)[0]
 
         words = text.split()
-        words[idx] = text_ops.cut_word(token)
+        words[idx] = text.cut_word(token)
         return " ".join(words)
 
     def _apply_repetition(self, doc: spacy.tokens.Doc) -> str:
@@ -396,13 +396,13 @@ class SpanishDisfluencyGenerator:
 
         if not candidates:  # repeat random word
             idx = random.choice(range(len(text.split())))
-            return text_ops.repeat_words(text, idx, 1)
+            return text.repeat_words(text, idx, 1)
 
         # Weight by POS probability
         try:
             weights = [self.rep_pos_probs[token.pos_] for _, token in candidates]
             idx, token = random.choices(candidates, weights=weights)[0]
-            sentence = text_ops.repeat_words(text, idx - order + 1, order)
+            sentence = text.repeat_words(text, idx - order + 1, order)
         except:
             print("Repetition failed for", text, order, idx)
             sentence = text
@@ -436,10 +436,10 @@ class SpanishDisfluencyGenerator:
         words = text.split()
         if pre_type == "CUT":
             words.insert(
-                idx, text_ops.cut_word(token, cut_from_start=False, chars=True)
+                idx, text.cut_word(token, cut_from_start=False, chars=True)
             )
         elif pre_type == "POS_CUT":
-            words.insert(idx, text_ops.cut_word(token, cut_from_start=True, chars=True))
+            words.insert(idx, text.cut_word(token, cut_from_start=True, chars=True))
         elif pre_type == "PRE":
             sub_type = random.choices(
                 list(self.sub_type_probs[token.pos_].keys()),
@@ -447,7 +447,7 @@ class SpanishDisfluencyGenerator:
             )[0]
 
             try:
-                words[idx] = text_ops.do_substitution(
+                words[idx] = text.do_substitution(
                     token,
                     sub_type=sub_type,
                     nlp=self.nlp,
