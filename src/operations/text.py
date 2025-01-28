@@ -1,14 +1,14 @@
 """Text operations for Spanish disfluency generation."""
 
 import random
+import re
 import spacy
 from typing import Union
 from difflib import get_close_matches
-from src.utils.verb_ops import conjugate_verb
-from src.utils.noun_adj_ops import to_plural, to_singular, to_masculine, to_feminine
-from src.utils.phonological import misspell_word
+from src.operations.verb_ops import conjugate_verb
+from src.operations.noun_adj_ops import to_plural, to_singular, to_masculine, to_feminine
+from src.operations.phonological import misspell_word
 from IPython import embed
-
 
 def cut_word(
     word: spacy.tokens.Doc,
@@ -92,7 +92,10 @@ def do_similarity(
         vector_similarity=vector_similarity,
         close_matches=close_matches,
     )
-    similar_word = random.choice(similar_words).lower().replace("-", "")
+    similar_word = random.choice(similar_words).lower()
+    
+    similar_word = clean_word(similar_word)
+
     return similar_word
 
 
