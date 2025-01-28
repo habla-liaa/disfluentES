@@ -11,19 +11,28 @@ SpanishDisfluencyGenerator.del_pos_probs = {
     'ADJ': 0.15
 }
 
+# TODO: Check if this is correct
 SpanishDisfluencyGenerator.sub_pos_probs = {
+    'VERB': 0.2,
+    'NOUN': 0.2,
+    'ADJ': 0.2,
+    'ADV': 0.15,
+    'DET': 0.1
+}
+
+SpanishDisfluencyGenerator.sub_type_probs = {
     'VERB': {
         'misspelling': 0.3,
         'inflection': 0.4,
         'similarity': 0.3
     },
     'NOUN': {
-        'gender_number': 0.3,
+        'inflection': 0.3,
         'similarity': 0.4,
         'misspelling': 0.3
     },
     'ADJ': {
-        'gender_number': 0.3,
+        'inflection': 0.3,
         'similarity': 0.4,
         'misspelling': 0.3
     }

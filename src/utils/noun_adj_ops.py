@@ -71,6 +71,7 @@ def to_masculine(word):
         return word[:-1] + 'o'
     if word.endswith('as'):
         return word[:-2] + 'os'
+    return word
 
 def to_feminine(word):
     # if word ends in 'o' change to 'a'

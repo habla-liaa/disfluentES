@@ -6,6 +6,7 @@ import spacy
 from pathlib import Path
 from typing import Optional, List, Union
 import argparse
+from tqdm import tqdm
 from transformers.models.whisper.english_normalizer import BasicTextNormalizer
 normalizer = BasicTextNormalizer()
 
@@ -78,7 +79,8 @@ def generate_disfluencies(
     if process_sentences:
         # Process each sentence separately
         doc = nlp(text)
-        for sent in doc.sents:
+        sentences = list(doc.sents)
+        for sent in tqdm(sentences, desc="Processing sentences", total=len(sentences)):
             sent_variations = []
             for _ in range(num_variations):
                 result = generator.generate_disfluencies(
@@ -96,6 +98,10 @@ def generate_disfluencies(
             )
             results.append(result)
     
+    # Remove duplicates and single word results
+    results = [result for result in results if len(result.split()) > 1]
+    results = list(set(results))
+
     # Write output
     if output_file:
         with open(output_file, 'w', encoding='utf-8') as f:

@@ -6,7 +6,9 @@ from typing import Union
 from difflib import get_close_matches
 from src.utils.verb_ops import conjugate_verb
 from src.utils.noun_adj_ops import to_plural, to_singular, to_masculine, to_feminine
+from src.utils.phonological import misspell_word
 from IPython import embed
+
 
 def cut_word(
     word: spacy.tokens.Doc,
@@ -27,7 +29,13 @@ def cut_word(
     if cut_from_start is None:
         cut_from_start = random.choice([True, False])
 
-    num_units_to_cut = random.randint(1, len(units) - 1)
+    if len(units) > 2:
+        num_units_to_cut = random.randint(1, len(units) - 1)
+    else:
+        num_units_to_cut = 1
+
+    if num_units_to_cut == 1 and chars and units[0] == "h" and not cut_from_start:
+        num_units_to_cut = 2
 
     if cut_from_start:
         # Cut from the beginning
@@ -59,7 +67,7 @@ def repeat_words(sentence: str, idx: int, order: int) -> str:
     words = sentence.split()
     if not words:
         return sentence
-
+    
     words_to_repeat = words[idx : idx + order]
     for i in range(order):
         words.insert(idx, words_to_repeat[-i - 1])
@@ -84,7 +92,58 @@ def do_similarity(
         vector_similarity=vector_similarity,
         close_matches=close_matches,
     )
-    return random.choice(similar_words)
+    similar_word = random.choice(similar_words).lower().replace("-", "")
+    return similar_word
+
+
+def do_substitution(
+    word: spacy.tokens.Doc,
+    sub_type: str,
+    nlp: spacy.language.Language,
+    adj_inflection_probs: dict,
+    verb_conjugation_probs: dict,
+    substitution_similarity_params: dict,
+    char_patterns: dict,
+    articles_map: dict,
+    prepositions: list,
+    conjunctions: dict,
+) -> str:
+    if word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "inflection":
+        substitute = do_inflection(word, adj_inflection_probs, verb_conjugation_probs)
+    elif word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "similarity":
+        substitute = do_similarity(word, nlp, **substitution_similarity_params)
+    elif word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "misspelling":
+        substitute = misspell_word(word, char_patterns)
+    elif word.pos_ == "DET":
+        if word.text.lower() in articles_map:
+            substitute = random.choice(articles_map[word.text.lower()])
+        else:
+            raise ValueError(f"Det map not found for {word.text}")
+    elif word.pos_ == "ADP":
+        if word.text in prepositions:
+            available_preps = [p for p in prepositions if p != word.text]
+            substitute = random.choice(available_preps)
+        else:
+            substitute = random.choice(prepositions)
+    elif word.pos_ == "CCONJ":
+        if word.text in conjunctions["CCONJ"]:
+            available_conjunctions = [
+                c for c in conjunctions["CCONJ"] if c != word.text
+            ]
+            substitute = random.choice(available_conjunctions)
+        else:
+            substitute = random.choice(conjunctions["CCONJ"])
+    elif word.pos_ == "SCONJ":
+        if word.text in conjunctions["SCONJ"]:
+            available_conjunctions = [
+                c for c in conjunctions["SCONJ"] if c != word.text
+            ]
+            substitute = random.choice(available_conjunctions)
+        else:
+            substitute = random.choice(conjunctions["SCONJ"])
+    else:
+        print("Substitution type not found for", word.pos_)
+    return substitute
 
 
 def do_inflection(
@@ -102,15 +161,28 @@ def do_inflection(
             return to_singular(word.text)
 
     if word.pos_ == "ADJ":
-        change_gender_or_number = random.choice(
-            adj_inflection_probs.keys(), weights=adj_inflection_probs.values()
-        )
+
+        if "Gender" not in morph:
+            change_gender_or_number = "number"
+        elif "Number" not in morph:
+            change_gender_or_number = "gender"
+        else:
+            change_gender_or_number = random.choices(
+                list(adj_inflection_probs.keys()), weights=adj_inflection_probs.values()
+            )[0]
+
         if change_gender_or_number == "gender":
             return (
-                to_masculine(word.text) if morph["Gender"] == "Masc" else to_feminine(word.text)
+                to_masculine(word.text)
+                if morph["Gender"] == "Masc"
+                else to_feminine(word.text)
             )
         else:
-            return to_plural(word.text) if morph["Number"] == "Plur" else to_singular(word.text)
+            return (
+                to_plural(word.text)
+                if morph["Number"] == "Plur"
+                else to_singular(word.text)
+            )
 
     # If verb, inflect verb form
     if word.pos_ in ["VERB", "AUX"]:
@@ -133,16 +205,11 @@ def do_inflection(
             list(verb_conjugation_probs.keys()), weights=verb_conjugation_probs.values()
         )[0]
 
-        if "Number" not in morph and change_type != "infinitive":
-            print(morph, word.pos_)
-            embed()
-
         if change_type == "change_number":
             number = "Plur" if "Sing" in morph["Number"] else "Sing"
             return conjugate_verb(word, change_number=number)
         elif change_type == "change_person":
             original_person = morph["Person"][0]
-            print(original_person)
             persons = ["1", "2", "3"]
             persons.remove(original_person)
             person = random.choice(persons)
@@ -154,6 +221,8 @@ def do_inflection(
             return conjugate_verb(word, change_mood="Sub")
         elif change_type == "infinitive":
             return str(word.lemma_)
+
+    print("Inflection type not found for", word.text, morph)
 
 
 def insert_article(

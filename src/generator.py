@@ -77,45 +77,37 @@ class SpanishDisfluencyGenerator:
             )
 
         self.max_repetitions = max_repetitions
-        self.disfluency_type = disfluency_type or []
+        self.disfluency_type = disfluency_type
 
         # Load disfluency type probabilities from gin config or default values equivalent to all.gin
-        self.disfluency_type_probs = disfluency_type_probs or {
-            "DEL": 0.069,
-            "PHO": 0.035,
-            "SUB": 0.267,
-            "INS": 0.116,
-            "CUT": 0.466,
-            "REP": 0.26,
-            "PRE": 0.244,
-        }
+        self.disfluency_type_probs = disfluency_type_probs
 
         # Load POS probabilities from gin config
-        self.del_pos_probs = del_pos_probs or {}
-        self.pho_pos_probs = pho_pos_probs or {}
-        self.sub_pos_probs = sub_pos_probs or {}
-        self.sub_type_probs = sub_type_probs or {}
-        self.adj_inflection_probs = adj_inflection_probs or {}
-        self.verb_conjugation_probs = verb_conjugation_probs or {}
-        self.ins_type_probs = ins_type_probs or {}
-        self.ins_target_pos = ins_target_pos or {}
-        self.cut_pos_probs = cut_pos_probs or {}
-        self.rep_pos_probs = rep_pos_probs or {}
-        self.rep_order_probs = rep_order_probs or {}
-        self.pre_pos_probs = pre_pos_probs or {}
-        self.pre_type_probs = pre_type_probs or {}
+        self.del_pos_probs = del_pos_probs
+        self.pho_pos_probs = pho_pos_probs
+        self.sub_pos_probs = sub_pos_probs
+        self.sub_type_probs = sub_type_probs
+        self.adj_inflection_probs = adj_inflection_probs
+        self.verb_conjugation_probs = verb_conjugation_probs
+        self.ins_type_probs = ins_type_probs
+        self.ins_target_pos = ins_target_pos
+        self.cut_pos_probs = cut_pos_probs
+        self.rep_pos_probs = rep_pos_probs
+        self.rep_order_probs = rep_order_probs
+        self.pre_pos_probs = pre_pos_probs
+        self.pre_type_probs = pre_type_probs
 
         # Load substitution similarity parameters
-        self.substitution_similarity_params = substitution_similarity_params or {}
+        self.substitution_similarity_params = substitution_similarity_params
 
         # Load word lists and patterns from gin config
-        self.articles = articles or []
-        self.prepositions = prepositions or []
-        self.conjunctions = conjunctions or {}
-        self.discourse_markers = discourse_markers or []
-        self.fillers = fillers or []
+        self.articles = articles
+        self.prepositions = prepositions
+        self.conjunctions = conjunctions
+        self.discourse_markers = discourse_markers
+        self.fillers = fillers
         self.char_patterns = char_patterns or default_char_patterns
-        self.articles_map = articles_map or {}
+        self.articles_map = articles_map
 
     def parse_text(self, text: str) -> spacy.tokens.Doc:
         """Parse the input text into a spacy Doc object."""
@@ -160,8 +152,15 @@ class SpanishDisfluencyGenerator:
                     list(self.disfluency_type_probs.keys()),
                     weights=list(self.disfluency_type_probs.values()),
                 )[0]
-                result_text = self._apply_disfluency(disfluency, doc)
-                doc = self.nlp(result_text)
+                not_failed = True
+                while not_failed:
+                    try:    
+                        result_text = self._apply_disfluency(disfluency, doc)
+                        doc = self.nlp(result_text)
+                        not_failed = False
+                    except:
+                        print("Disfluency failed for", disfluency, doc.text)
+                        pass
 
         return result_text
 
@@ -270,56 +269,39 @@ class SpanishDisfluencyGenerator:
         words = text.split()
 
         weights = [self.sub_pos_probs[token.pos_] for _, token in candidates]
+
         idx, token = random.choices(candidates, weights=weights)[0]
 
-        
         sub_type = random.choices(
             list(self.sub_type_probs[token.pos_].keys()),
             weights=list(self.sub_type_probs[token.pos_].values()),
         )[0]
 
-        if token.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "inflection":
-            words[idx] = text_ops.do_inflection(
-                token, self.adj_inflection_probs, self.verb_conjugation_probs
-            )
-        elif token.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "similarity":
-            words[idx] = text_ops.do_similarity(
-                token, self.nlp, **self.substitution_similarity_params
-            )
-        elif token.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "misspelling":
-            words[idx] = phonological.misspell_word(token, self.char_patterns)
-        elif token.pos_ == "DET":
-            if token.text.lower() in self.articles_map:
-                words[idx] = random.choice(self.articles_map[token.text.lower()])
-            else:
-                raise ValueError(f"Det map not found for {token.text}")
-        elif token.pos_ == "ADP":
-            if token.text in self.prepositions:
-                available_preps = [p for p in self.prepositions if p != token.text]
-                words[idx] = random.choice(available_preps)
-            else:
-                words[idx] = random.choice(self.prepositions)
-        elif token.pos_ == "CCONJ":
-            if token.text in self.conjunctions["CCONJ"]:
-                available_conjunctions = [
-                    c for c in self.conjunctions["CCONJ"] if c != token.text
-                ]
-                words[idx] = random.choice(available_conjunctions)
-            else:
-                words[idx] = random.choice(self.conjunctions["CCONJ"])
-        elif token.pos_ == "SCONJ":
-            if token.text in self.conjunctions["SCONJ"]:
-                available_conjunctions = [
-                    c for c in self.conjunctions["SCONJ"] if c != token.text
-                ]
-                words[idx] = random.choice(available_conjunctions)
-            else:
-                words[idx] = random.choice(self.conjunctions["SCONJ"])
-
         try:
-            result = " ".join(words)
+            words[idx] = text_ops.do_substitution(
+                token,
+                sub_type,
+                self.nlp,
+                self.adj_inflection_probs,
+                self.verb_conjugation_probs,
+            self.substitution_similarity_params,
+                self.char_patterns,
+                self.articles_map,
+                self.prepositions,
+                self.conjunctions,
+            )
         except:
+            print("Substitution failed for", token)
+            pass
+
+        # if  there is a None in the list print sub_type
+        if None in words:
+            print(sub_type, token.pos_, token.text)
             embed()
+
+        result = " ".join(words)
+
+        
 
         return result
 
@@ -417,10 +399,15 @@ class SpanishDisfluencyGenerator:
             return text_ops.repeat_words(text, idx, 1)
 
         # Weight by POS probability
-        weights = [self.rep_pos_probs[token.pos_] for _, token in candidates]
-        idx, token = random.choices(candidates, weights=weights)[0]
-        idx = text.split().index(token.text)
-        return text_ops.repeat_words(text, idx - order + 1, order)
+        try:
+            weights = [self.rep_pos_probs[token.pos_] for _, token in candidates]
+            idx, token = random.choices(candidates, weights=weights)[0]
+            sentence = text_ops.repeat_words(text, idx - order + 1, order)
+        except:
+            print("Repetition failed for", text, order, idx)
+            sentence = text
+
+        return sentence
 
     def _apply_precorrection(self, doc: spacy.tokens.Doc) -> str:
         """Apply precorrection disfluency."""
@@ -454,7 +441,27 @@ class SpanishDisfluencyGenerator:
         elif pre_type == "POS_CUT":
             words.insert(idx, text_ops.cut_word(token, cut_from_start=True, chars=True))
         elif pre_type == "PRE":
-            raise NotImplementedError("Pre correction not implemented")
+            sub_type = random.choices(
+                list(self.sub_type_probs[token.pos_].keys()),
+                weights=list(self.sub_type_probs[token.pos_].values()),
+            )[0]
+
+            try:
+                words[idx] = text_ops.do_substitution(
+                    token,
+                    sub_type=sub_type,
+                    nlp=self.nlp,
+                    adj_inflection_probs=self.adj_inflection_probs,
+                    verb_conjugation_probs=self.verb_conjugation_probs,
+                    substitution_similarity_params=self.substitution_similarity_params,
+                    char_patterns=self.char_patterns,
+                    articles_map=self.articles_map,
+                    prepositions=self.prepositions,
+                    conjunctions=self.conjunctions,
+                )
+            except:
+                print("Precorrection substitution failed for", token)
+                pass
 
         return " ".join(words)
 

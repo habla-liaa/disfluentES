@@ -9,6 +9,11 @@ spacy_to_mlconjug3 = {
         "mood": "Imperativo",
         "person": "tú",
     },
+    ("Fin", "Imp", "Pres", "2", "Plur"): {
+        "tense": "Afirmativo",
+        "mood": "Imperativo",
+        "person": "ellos",
+    },
     ("Fin", "Imp", "Pres", "3", "Plur"): {
         "tense": "Afirmativo",
         "mood": "Imperativo",
@@ -83,6 +88,11 @@ spacy_to_mlconjug3 = {
         "tense": "pretérito perfecto simple",
         "mood": "Indicativo",
         "person": "tú",
+    },
+    ("Fin", "Ind", "Past", "2", "Plur"): {
+        "tense": "pretérito perfecto simple",
+        "mood": "Indicativo",
+        "person": "ellos",
     },
     ("Fin", "Ind", "Past", "3", "Plur"): {
         "tense": "pretérito perfecto simple",

@@ -34,7 +34,7 @@ def misspell_word(word: spacy.tokens.Doc, char_patterns: dict) -> str:
             syllable = operation(syllable, char_patterns)
         syllables[syllable_idx] = syllable
 
-    return " ".join(syllables)
+    return "".join(syllables)
 
 
 def substitute_char(word: str, char_patterns: dict) -> str:
