@@ -51,7 +51,7 @@ SpanishDisfluencyGenerator.sub_type_probs = {
     'SCONJ': {'alternative': 1.0}
 }
 
-SpanishDisfluencyGenerator.noun_inflection_probs = {
+SpanishDisfluencyGenerator.adj_inflection_probs = {
     'number': 0.5,
     'gender': 0.5
 }

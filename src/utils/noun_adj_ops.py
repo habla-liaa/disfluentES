@@ -2,6 +2,11 @@ from typing import Dict, Optional, Tuple
 from IPython import embed
 import spacy
 
+vowels = ['a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú']
+accented_vowels = ['á', 'é', 'í', 'ó', 'ú']
+
+
+
 def to_plural(word):
     # Handle empty words
     if not word:
@@ -11,8 +16,6 @@ def to_plural(word):
     last_char = word[-1].lower()
     
     # Rule 1: Words ending in vowels (a, e, i, o, u) add 's'
-    vowels = ['a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú']
-    accented_vowels = ['á', 'é', 'í', 'ó', 'ú']
     if last_char in vowels and last_char not in ['í', 'ú']:
         return word + 's'
     
@@ -40,7 +43,6 @@ def to_singular(word):
     # no agarra palabras invariables tipo crisis, lunes, tórax, cosmos, etc. 
         
     # Rule 1: Words ending in 's' after a vowel
-    vowels = ['a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú']
     if word.endswith('s') and len(word) > 1 and word[-2] in vowels:
         return word[:-1]
         
@@ -61,4 +63,19 @@ def to_singular(word):
     if word.endswith('s'):
         return word[:-1]
         
+    return word
+
+def to_masculine(word):
+    # if word ends in 'a' or 'o' change to 'o'
+    if word.endswith('a'):
+        return word[:-1] + 'o'
+    if word.endswith('as'):
+        return word[:-2] + 'os'
+
+def to_feminine(word):
+    # if word ends in 'o' change to 'a'
+    if word.endswith('o'):
+        return word[:-1] + 'a'
+    if word.endswith('os'):
+        return word[:-2] + 'as'
     return word

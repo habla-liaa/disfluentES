@@ -59,20 +59,25 @@ def conjugate_verb(token: spacy.tokens.Token,
     infinitive = token.lemma_
     morph = token.morph.to_dict()
 
-    mood = morph["Mood"]
-    tense = morph["Tense"]
-    person = morph["Person"]
-    number = morph["Number"]
-    verb_form = morph["VerbForm"]
-
-    # Exception because of the way argentinian Spanish is conjugated
-    if change_person:
-        if number == "Plur" and change_person in ["2", "3"]:
-            change_person = "1"
-    
-    if change_person:
-        if number == "Plur" and change_person == "1":
-            change_person = "3"
+    try:
+        verb_form = morph["VerbForm"]
+        if verb_form != "Inf" and verb_form != "Ger":
+            mood = morph["Mood"]
+            tense = morph["Tense"]
+            person = morph["Person"]
+            number = morph["Number"]
+            # Exception because of the way argentinian Spanish is conjugated
+            if change_person:
+                if number == "Plur" and change_person in ["2", "3"]:
+                    change_person = "1"
+            
+            if change_person:
+                if number == "Plur" and change_person == "1":
+                    change_person = "3"
+        
+    except KeyError:
+        print(morph, token.pos_)
+        embed()
 
     try:
         
@@ -93,6 +98,10 @@ def conjugate_verb(token: spacy.tokens.Token,
             "Number": number,
             "VerbForm": "Fin"
         }
+
+        # If Imp and Fut, change to Ind
+        if mood == "Imp" and tense == "Fut":
+            morph["Mood"] = "Ind"
 
         mood_mlconjug, tense_mlconjug, person_mlconjug = get_mlconjug_params(morph)
 

@@ -5,7 +5,8 @@ import spacy
 from typing import Union
 from difflib import get_close_matches
 from src.utils.verb_ops import conjugate_verb
-
+from src.utils.noun_adj_ops import to_plural, to_singular, to_masculine, to_feminine
+from IPython import embed
 
 def cut_word(
     word: spacy.tokens.Doc,
@@ -87,22 +88,35 @@ def do_similarity(
 
 
 def do_inflection(
-    word: spacy.tokens.Doc, noun_inflection_probs: dict, verb_conjugation_probs: dict
+    word: spacy.tokens.Doc, adj_inflection_probs: dict, verb_conjugation_probs: dict
 ) -> str:
     """Inflect a word based on its morphological features."""
 
     morph = word.morph.to_dict()
 
-    # If noun, inflect noun form
+    # If noun, change number
     if word.pos_ == "NOUN":
-        return inflect_noun(word, noun_inflection_probs)
+        if morph["Number"] == "Sing":
+            return to_plural(word.text)
+        else:
+            return to_singular(word.text)
 
+    if word.pos_ == "ADJ":
+        change_gender_or_number = random.choice(
+            adj_inflection_probs.keys(), weights=adj_inflection_probs.values()
+        )
+        if change_gender_or_number == "gender":
+            return (
+                to_masculine(word.text) if morph["Gender"] == "Masc" else to_feminine(word.text)
+            )
+        else:
+            return to_plural(word.text) if morph["Number"] == "Plur" else to_singular(word.text)
 
     # If verb, inflect verb form
     if word.pos_ in ["VERB", "AUX"]:
 
         # if gerundio conjugate verb to any random form
-        if morph["VerbForm"] == "Ger":
+        if morph["VerbForm"] == "Ger" or morph["VerbForm"] == "Inf":
             number = random.choice(["Sing", "Plur"])
             tense = random.choice(["Pres", "Imp", "Past", "Fut"])
             mood = random.choice(["Ind", "Sub", "Imp"])
@@ -118,15 +132,18 @@ def do_inflection(
         change_type = random.choices(
             list(verb_conjugation_probs.keys()), weights=verb_conjugation_probs.values()
         )[0]
-        
-        
+
+        if "Number" not in morph and change_type != "infinitive":
+            print(morph, word.pos_)
+            embed()
+
         if change_type == "change_number":
             number = "Plur" if "Sing" in morph["Number"] else "Sing"
             return conjugate_verb(word, change_number=number)
         elif change_type == "change_person":
             original_person = morph["Person"][0]
             print(original_person)
-            persons=["1", "2", "3"]
+            persons = ["1", "2", "3"]
             persons.remove(original_person)
             person = random.choice(persons)
             return conjugate_verb(word, change_person=person)
@@ -135,6 +152,8 @@ def do_inflection(
             return conjugate_verb(word, change_tense=tense)
         elif change_type == "change_mood":
             return conjugate_verb(word, change_mood="Sub")
+        elif change_type == "infinitive":
+            return str(word.lemma_)
 
 
 def insert_article(
@@ -179,7 +198,7 @@ def get_similar_words(
     # Add phonologically similar words
     all_words = [w for w in nlp.vocab.strings if len(w) > 2]
     if close_matches:
-        phono_similar = get_close_matches(word, all_words, cutoff=cutoff)
+        phono_similar = get_close_matches(word.text, all_words, cutoff=cutoff)
         similar_words.update(phono_similar)
 
     # Remove original word

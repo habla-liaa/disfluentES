@@ -184,6 +184,11 @@ spacy_to_mlconjug3 = {
         "mood": "Subjuntivo",
         "person": "tú",
     },
+    ("Fin", "Sub", "Pres", "2", "Plural"): {
+        "tense": "presente",
+        "mood": "Subjuntivo",
+        "person": "ellos",
+    },
     ("Fin", "Sub", "Pres", "3", "Plur"): {
         "tense": "presente",
         "mood": "Subjuntivo",
