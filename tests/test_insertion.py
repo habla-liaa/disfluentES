@@ -17,7 +17,7 @@ def test_apply_insertion_with_noun(generator):
     generator.ins_type_probs = {'articles': 1.0}
     generator.articles = ['el', 'la', 'los', 'las', 'un', 'una', 'unas', 'unos']
     np.random.seed(42)
-    result = generator._apply_insertion(text, doc)
+    result = generator._apply_insertion(doc)
     # With seed 42, should insert "el" before "gato" (masculine singular)
     assert result == "el gato negro" or result == "un gato negro"
 
@@ -29,7 +29,7 @@ def test_apply_insertion_with_feminine_noun(generator):
     generator.ins_type_probs = {'articles': 1.0}
     generator.articles = ['el', 'la', 'los', 'las', 'un', 'una', 'unas', 'unos']
     np.random.seed(42)
-    result = generator._apply_insertion(text, doc)
+    result = generator._apply_insertion(doc)
     # Should insert feminine article 
     assert result == "la casa grande" or result == "una casa grande"
 
@@ -40,7 +40,7 @@ def test_apply_insertion_preposition(generator):
     generator.ins_target_pos = {'NOUN': 1.0}
     generator.ins_type_probs = {'prepositions': 1.0}
     generator.prepositions = ['de']  # Fix preposition for test
-    result = generator._apply_insertion(text, doc)
+    result = generator._apply_insertion(doc)
     assert result == "de gato negro"
 
 def test_apply_insertion_conjunction(generator):
@@ -50,26 +50,26 @@ def test_apply_insertion_conjunction(generator):
     generator.ins_target_pos = {'NOUN': 1.0}
     generator.ins_type_probs = {'conjunctions': 1.0}
     generator.conjunctions = {'CCONJ': ['y'], 'SCONJ': ['que']}  # Fix conjunction for test
-    result = generator._apply_insertion(text, doc)
+    result = generator._apply_insertion(doc)
     assert result == "y gato negro" or result == "que gato negro"
 
 def test_apply_insertion_no_candidates(generator):
     """Test insertion when there are no valid candidates."""
     text = "ah eh"  # Interjections without valid POS tags
     doc = generator.parse_text(text)
-    result = generator._apply_insertion(text, doc)
+    result = generator._apply_insertion(doc)
     assert result == text
 
 def test_apply_insertion_empty_text(generator):
     """Test insertion with empty text."""
     text = ""
     doc = generator.parse_text(text)
-    result = generator._apply_insertion(text, doc)
+    result = generator._apply_insertion(doc)
     assert result == text
 
 def test_apply_insertion_whitespace(generator):
     """Test insertion with whitespace."""
     text = "   "
     doc = generator.parse_text(text)
-    result = generator._apply_insertion(text, doc)
+    result = generator._apply_insertion(doc)
     assert result == text 

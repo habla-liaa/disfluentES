@@ -15,7 +15,7 @@ def test_apply_cut_with_verb(generator):
     doc = generator.nlp(text)
     generator.cut_pos_probs = {'VERB': 1.0}
     np.random.seed(42)  # Reset seed for consistent results
-    result = generator._apply_cut(text, doc)
+    result = generator._apply_cut(doc)
     # Should cut "caminando" to a shorter form
     assert result != text
     assert result.split()[0].startswith("ca") or result.split()[0].endswith("do")
@@ -27,7 +27,7 @@ def test_apply_cut_with_noun(generator):
     doc = generator.parse_text(text)
     generator.cut_pos_probs = {'NOUN': 1.0}
     np.random.seed(42)
-    result = generator._apply_cut(text, doc)
+    result = generator._apply_cut(doc)
     # Should cut "elefante" to a shorter form
     assert result != text
     assert "elefante" not in result
@@ -39,7 +39,7 @@ def test_apply_cut_with_adjective(generator):
     doc = generator.parse_text(text)
     generator.cut_pos_probs = {'ADJ': 1.0}
     np.random.seed(42)
-    result = generator._apply_cut(text, doc)
+    result = generator._apply_cut(doc)
     # Should cut "hermoso" to a shorter form
     assert result != text
     assert "hermoso" not in result
@@ -50,7 +50,7 @@ def test_apply_cut_short_word(generator):
     text = "el sol"  # "sol" is 3 letters
     doc = generator.parse_text(text)
     generator.cut_pos_probs = {'NOUN': 1.0}
-    result = generator._apply_cut(text, doc)
+    result = generator._apply_cut(doc)
     # Should not cut words that are too short
     assert result == text
 
@@ -59,21 +59,21 @@ def test_apply_cut_no_candidates(generator):
     text = "el y la"  # Only function words
     doc = generator.parse_text(text)
     generator.cut_pos_probs = {'NOUN': 1.0, 'VERB': 1.0, 'ADJ': 1.0}
-    result = generator._apply_cut(text, doc)
+    result = generator._apply_cut(doc)
     assert result == text
 
 def test_apply_cut_empty_text(generator):
     """Test with empty text."""
     text = ""
     doc = generator.parse_text(text)
-    result = generator._apply_cut(text, doc)
+    result = generator._apply_cut(doc)
     assert result == text
 
 def test_apply_cut_whitespace(generator):
     """Test with whitespace only."""
     text = "   "
     doc = generator.parse_text(text)
-    result = generator._apply_cut(text, doc)
+    result = generator._apply_cut(doc)
     assert result == text
 
 
