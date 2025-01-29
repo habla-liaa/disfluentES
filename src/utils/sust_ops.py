@@ -44,7 +44,7 @@ def to_singular(word):
     if word.endswith('s') and len(word) > 1 and word[-2] in vowels:
         return word[:-1]
         
-    # Rule 3: Words ending in 'ces' change to 'z'
+    # Rule 2: Words ending in 'ces' change to 'z'
     if word.endswith('ces'):
         return word[:-3] + 'z'
         
