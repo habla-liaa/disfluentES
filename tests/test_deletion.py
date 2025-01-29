@@ -14,7 +14,7 @@ def test_apply_deletion_with_pos_candidates(generator):
     text = "El gato está volando"
     doc = generator.parse_text(text)
     generator.del_pos_probs = {'NOUN': 1.0}
-    result = generator._apply_deletion(text, doc)
+    result = generator._apply_deletion(doc)
     # With seed 42, should delete "gato" based on POS probabilities
     assert result == "El está volando"
 
@@ -23,7 +23,7 @@ def test_apply_deletion_without_pos_candidates(generator):
     # Using a text where no words match POS tag probabilities
     text = "ah um eh"
     doc = generator.parse_text(text)
-    result = generator._apply_deletion(text, doc)
+    result = generator._apply_deletion(doc)
     # Should delete a random word since no POS matches
     assert result == "ah eh" or result == "um eh" or result == "ah um"
 
@@ -31,20 +31,20 @@ def test_apply_deletion_single_word(generator):
     """Test deletion with a single word - should return unchanged."""
     text = "gato"
     doc = generator.parse_text(text)
-    result = generator._apply_deletion(text, doc)
+    result = generator._apply_deletion(doc)
     assert result == text
 
 def test_apply_deletion_empty_text(generator):
     """Test deletion with empty text - should return unchanged."""
     text = ""
     doc = generator.parse_text(text)
-    result = generator._apply_deletion(text, doc)
+    result = generator._apply_deletion(doc)
     assert result == text
 
 def test_apply_deletion_whitespace(generator):
     """Test deletion with whitespace - should return unchanged."""
     text = "   "
     doc = generator.parse_text(text)
-    result = generator._apply_deletion(text, doc)
+    result = generator._apply_deletion(doc)
     assert result == text 
 

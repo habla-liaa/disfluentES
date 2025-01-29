@@ -11,7 +11,7 @@ SpanishDisfluencyGenerator.del_pos_probs = {
     'PRON': 0.10
 }
 
-SpanishDisfluencyGenerator.sub_pos_probs = {
+SpanishDisfluencyGenerator.sub_type_probs = {
     'VERB': {
         'misspelling': 0.3,
         'inflection': 0.4,

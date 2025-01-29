@@ -22,7 +22,7 @@ def test_apply_phonological_consonant(generator):
         "deletions": {"position": {"start": ["p"]}},
     }
     np.random.seed(42)  # Reset seed for consistent results
-    result = generator._apply_phonological(text, doc)
+    result = generator._apply_phonological(doc)
     # Should substitute 'rr' with 'r' in 'perro'
     assert result == "pero negro" or result == "eperro negro" or result == "erro negro"
 
@@ -38,7 +38,7 @@ def test_apply_phonological_vowel_substitution(generator):
         }
     }
     np.random.seed(42)
-    result = generator._apply_phonological(text, doc)
+    result = generator._apply_phonological(doc)
     # Should substitute 'e' with 'i' in 'mesa'
     assert result == "misa verde"
 
@@ -56,7 +56,7 @@ def test_apply_phonological_char_insertion(generator):
         },
     }
     np.random.seed(42)
-    result = generator._apply_phonological(text, doc)
+    result = generator._apply_phonological(doc)
     # Should insert 'e' at the start of 'casa'
     assert result == "ecasa roja"
 
@@ -68,7 +68,7 @@ def test_apply_phonological_char_deletion(generator):
     generator.pho_pos_probs = {"NOUN": 1.0}
     generator.char_patterns = {"deletions": {"position": {"middle": ["s"]}}}
     np.random.seed(42)
-    result = generator._apply_phonological(text, doc)
+    result = generator._apply_phonological(doc)
     # Should delete one 'r' from 'carro'
     assert result == "macara azul"
 
@@ -82,7 +82,7 @@ def test_apply_phonological_diphthong_substitution(generator):
         "substitutions": {"diphthongs": {"ie": ["e"]}},
     }
     np.random.seed(42)
-    result = generator._apply_phonological(text, doc)
+    result = generator._apply_phonological(doc)
     # Should substitute 'ie' with 'e' in 'cielo'
     assert result == "celo azul"
 
@@ -92,7 +92,7 @@ def test_apply_phonological_no_candidates(generator):
     text = "y o"  # Only function words
     doc = generator.parse_text(text)
     generator.pho_pos_probs = {"NOUN": 1.0, "VERB": 1.0, "ADJ": 1.0}
-    result = generator._apply_phonological(text, doc)
+    result = generator._apply_phonological(doc)
     # Should return unchanged text when no valid candidates
     assert result == text
 
@@ -101,7 +101,7 @@ def test_apply_phonological_empty_text(generator):
     """Test with empty text."""
     text = ""
     doc = generator.parse_text(text)
-    result = generator._apply_phonological(text, doc)
+    result = generator._apply_phonological(doc)
     assert result == text
 
 
@@ -109,5 +109,5 @@ def test_apply_phonological_whitespace(generator):
     """Test with whitespace only."""
     text = "   "
     doc = generator.parse_text(text)
-    result = generator._apply_phonological(text, doc)
+    result = generator._apply_phonological(doc)
     assert result == text

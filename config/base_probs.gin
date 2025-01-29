@@ -18,51 +18,6 @@ SpanishDisfluencyGenerator.pho_pos_probs = {
     'PROPN': 0.15
 }
 
-SpanishDisfluencyGenerator.sub_pos_probs = {
-    'VERB': 0.2,
-    'NOUN': 0.2,
-    'ADJ': 0.2,
-    'ADV': 0.15,
-    'DET': 0.1
-}
-
-SpanishDisfluencyGenerator.sub_type_probs = {
-    'VERB': {
-        'misspelling': 0.1,
-        'inflection': 0.5,
-        'similarity': 0.2,
-        'nominalization': 0.2
-    },
-    'NOUN': {
-        'inflection': 0.4,
-        'similarity': 0.4,
-        'misspelling': 0.2
-    },
-    'ADJ': {
-        'inflection': 0.4,
-        'similarity': 0.4,
-        'misspelling': 0.2
-    },
-    'ADP': {
-        'preposition': 0.6,
-        'conjunction': 0.4
-    },
-    'CCONJ': {'alternative': 1.0},
-    'SCONJ': {'alternative': 1.0}
-}
-
-SpanishDisfluencyGenerator.noun_inflection_probs = {
-    'number': 0.5,
-    'gender': 0.5
-}
-
-SpanishDisfluencyGenerator.verb_conjugation_probs = {
-    'change_number': 0.8,
-    'change_person': 0.1,
-    'change_tense': 0.05,
-    'change_mood': 0.05
-}
-
 SpanishDisfluencyGenerator.ins_type_probs = {
     'articles': 0.3,
     'prepositions': 0.3,
@@ -105,9 +60,8 @@ SpanishDisfluencyGenerator.pre_pos_probs = {
     'ADV': 0.1
 }
  
- SpanishDisfluencyGenerator.pre_type_probs = {
+SpanishDisfluencyGenerator.pre_type_probs = {
     'PRE': 0.2,
     'CUT': 0.78,
     'POS_CUT': 0.02
 }
-

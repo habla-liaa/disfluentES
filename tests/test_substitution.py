@@ -80,7 +80,7 @@ def test_apply_substitution_noun_gender(generator):
     generator.sub_pos_probs = {'NOUN': 1.0}
     generator.substitution_alteration_subclass = {'inflection': 1.0}
     np.random.seed(42)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should change noun gender
     assert result != text
     assert "gata" in result
@@ -93,7 +93,7 @@ def test_apply_substitution_noun_number(generator):
     generator.sub_pos_probs = {'NOUN': 1.0}
     generator.substitution_alteration_subclass = {'inflection': 1.0}
     np.random.seed(43)  # Different seed to force number change
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should change noun number
     assert result != text
     assert "gatos" in result
@@ -106,7 +106,7 @@ def test_apply_substitution_adjective_gender(generator):
     generator.sub_pos_probs = {'ADJ': 1.0}
     generator.substitution_alteration_subclass = {'inflection': 1.0}
     np.random.seed(42)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should change adjective gender
     assert result != text
     assert "blanco" in result
@@ -118,7 +118,7 @@ def test_apply_substitution_determiner_definite_to_indefinite(generator):
     doc = generator.parse_text(text)
     generator.sub_pos_probs = {'DET': 1.0}
     np.random.seed(42)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should change determiner from el to un
     assert result != text
     assert result.startswith("un gato")
@@ -129,7 +129,7 @@ def test_apply_substitution_determiner_indefinite_to_definite(generator):
     doc = generator.parse_text(text)
     generator.sub_pos_probs = {'DET': 1.0}
     np.random.seed(42)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should change determiner from un to el
     assert result != text
     assert result.startswith("el gato")
@@ -140,7 +140,7 @@ def test_apply_substitution_preposition(generator):
     doc = generator.parse_text(text)
     generator.sub_pos_probs = {'ADP': 1.0}
     np.random.seed(42)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should substitute preposition
     assert result != text
     assert any(prep in result for prep in ['de', 'en', 'por', 'para', 'con', 'sin'])
@@ -153,7 +153,7 @@ def test_apply_substitution_misspelling(generator):
     generator.sub_pos_probs = {'NOUN': 1.0}
     generator.substitution_alteration_subclass = {'misspelling': 1.0}
     np.random.seed(42)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should introduce character substitution
     assert result != text
     assert result.startswith("el") and result.endswith("negro")
@@ -164,7 +164,7 @@ def test_apply_substitution_no_candidates(generator):
     text = "ah eh"  # Interjections
     doc = generator.parse_text(text)
     generator.sub_pos_probs = {'VERB': 1.0, 'NOUN': 1.0}
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should apply phonological error to a random word
     assert result != text
 
@@ -172,14 +172,14 @@ def test_apply_substitution_empty_text(generator):
     """Test substitution with empty text."""
     text = ""
     doc = generator.parse_text(text)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     assert result == text
 
 def test_apply_substitution_whitespace(generator):
     """Test substitution with whitespace."""
     text = "   "
     doc = generator.parse_text(text)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     assert result == text
 
 def test_apply_substitution_multiple_candidates(generator):
@@ -188,7 +188,7 @@ def test_apply_substitution_multiple_candidates(generator):
     doc = generator.parse_text(text)
     generator.sub_pos_probs = {'NOUN': 0.5, 'ADJ': 0.5}
     np.random.seed(42)
-    result = generator._apply_substitution(text, doc)
+    result = generator._apply_substitution(doc)
     # Should modify either noun or adjective
     assert result != text
     assert result.startswith("el") and ("gato" not in result or "negro" not in result) 

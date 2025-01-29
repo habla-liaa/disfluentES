@@ -2,7 +2,7 @@ from typing import Dict, Optional, Tuple
 from IPython import embed
 import spacy
 from mlconjug3 import Conjugator
-from src.utils.verb_forms_map import spacy_to_mlconjug3
+from src.operations import spacy_to_mlconjug3
 
 # Initialize Spanish conjugator
 conjugator = Conjugator(language='es')
@@ -57,25 +57,28 @@ def conjugate_verb(token: spacy.tokens.Token,
         
     # Get base infinitive form
     infinitive = token.lemma_
+    if infinitive[-1] != "r":
+        infinitive += "r"
+
     morph = token.morph.to_dict()
 
-    mood = morph["Mood"]
-    tense = morph["Tense"]
-    person = morph["Person"]
-    number = morph["Number"]
     verb_form = morph["VerbForm"]
-
-    # Exception because of the way argentinian Spanish is conjugated
-    if change_person:
-        if number == "Plur" and change_person in ["2", "3"]:
-            change_person = "1"
-    
-    if change_person:
-        if number == "Plur" and change_person == "1":
-            change_person = "3"
-
-    try:
+    if verb_form != "Inf" and verb_form != "Ger":
+        mood = morph["Mood"]
+        tense = morph["Tense"]
+        person = morph["Person"]
+        number = morph["Number"]
+        # Exception because of the way argentinian Spanish is conjugated
+        if change_person:
+            if number == "Plur" and change_person in ["2", "3"]:
+                change_person = "1"
         
+        if change_person:
+            if number == "Plur" and change_person == "1":
+                change_person = "3"
+    
+
+    try:        
         # Apply requested changes
         if change_person:
             person = change_person
@@ -94,6 +97,16 @@ def conjugate_verb(token: spacy.tokens.Token,
             "VerbForm": "Fin"
         }
 
+        # Exceptions
+        if mood == "Imp" and tense == "Fut":
+            morph["Mood"] = "Ind"
+
+        if mood == "Sub" and tense == "Past":
+            morph["Tense"] = "Imp"
+
+        if mood == "Imp" and tense == "Imp":
+            morph["Mood"] = "Ind"
+
         mood_mlconjug, tense_mlconjug, person_mlconjug = get_mlconjug_params(morph)
 
         # Get conjugation table
@@ -101,9 +114,10 @@ def conjugate_verb(token: spacy.tokens.Token,
         
         # Get specific conjugation
         conjugation = verb_conj.conjug_info[mood_mlconjug][tense_mlconjug][person_mlconjug]
-        
+        if conjugation is None:
+            return token.text
         return conjugation
         
     except Exception as e:
         print(f"Error conjugating verb {infinitive}: {str(e)}")
-        return None 
+        return token.text

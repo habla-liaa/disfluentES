@@ -19,33 +19,42 @@ A Python tool for generating natural disfluencies in Spanish text, simulating sp
 
 ## Installation 🔧
 
+You can install DisfluentES using any of these methods:
+
+### 1. Install from PyPI (Recommended)
+```bash
+pip install disfluentES
+```
+
+### 2. Install from source
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/disfluentES.git
+git clone https://github.com/habla-liaa/disfluentES.git
 cd disfluentES
 ```
 
-2. Create and activate a virtual environment (recommended):
+2. Install in development mode:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -e .
 ```
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Download the Spanish language model:
+### 3. Download Required Language Model
+After installation, download the Spanish language model:
 ```bash
 python -m spacy download es_core_news_lg
 ```
 
-## Usage 💻
+## Usage ��
 
 ### Basic Usage
 
-Generate disfluencies with default settings:
+After installation, you can use the `disfluentes` command directly from your terminal:
+
+```bash
+disfluentes -i "El gato duerme en la cama" -o output.txt
+```
+
+Or if running from source:
 ```bash
 python disfluentes.py -i "El gato duerme en la cama" -o output.txt
 ```
@@ -54,32 +63,32 @@ python disfluentes.py -i "El gato duerme en la cama" -o output.txt
 
 1. **Process Multiple Sentences**:
 ```bash
-python disfluentes.py -i "El gato duerme. El perro come." \
-                     --process_sentences \
-                     --num_variations 3
+disfluentes -i "El gato duerme. El perro come." \
+           --process_sentences \
+           --num_variations 3
 ```
 
 2. **Use Different Difficulty Levels**:
 ```bash
 # Beginner level
-python disfluentes.py -i "Tu texto" --config_file config/levels/primero.gin
+disfluentes -i "Tu texto" --config_file config/levels/primero.gin
 
 # Intermediate level
-python disfluentes.py -i "Tu texto" --config_file config/levels/tercero.gin
+disfluentes -i "Tu texto" --config_file config/levels/tercero.gin
 
 # Advanced level
-python disfluentes.py -i "Tu texto" --config_file config/levels/quinto.gin
+disfluentes -i "Tu texto" --config_file config/levels/quinto.gin
 ```
 
 3. **Specify Disfluency Types**:
 ```bash
-python disfluentes.py -i "El gato duerme" \
-                     --disfluency_type='["DEL","INS"]'
+disfluentes -i "El gato duerme" \
+           --disfluency_type='["DEL","INS"]'
 ```
 
 ### Configuration 🛠️
 
-The tool uses [gin-config](https://github.com/google/gin-config) for configuration. Available settings include:
+Available settings include:
 
 - Disfluency type probabilities
 - POS tag probabilities for each disfluency type
@@ -117,7 +126,7 @@ If you use this tool in your research, please cite:
   author = {Your Name},
   title = {DisfluentES: A Spanish Disfluency Generator},
   year = {2024},
-  url = {https://github.com/yourusername/disfluentES}
+  url = {https://github.com/habla-liaa/disfluentES}
 }
 ```
 

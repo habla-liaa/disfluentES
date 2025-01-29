@@ -10,14 +10,21 @@ def misspell_word(word: spacy.tokens.Doc, char_patterns: dict) -> str:
     """
     syllables = word._.syllables
     if not syllables:
-        return word
-    num_syllables_to_misspell = random.randint(1, 2)
+        return word.text
+    
+    if len(syllables) == 1:
+        syllables_to_misspell = [0]
+        num_syllables_to_misspell = 1
+    else:    
+        if len(syllables) == 2:        
+            num_syllables_to_misspell = 1
+        else:
+            num_syllables_to_misspell = random.randint(1, 2)
 
-    # select index of syllables to misspell
-    syllables_to_misspell = random.sample(range(len(syllables)), num_syllables_to_misspell)
+        # select index of syllables to misspell
+        syllables_to_misspell = random.sample(range(len(syllables)), num_syllables_to_misspell)
 
     num_operations_to_apply = random.randint(1, 2)
-
     # select which operations to apply
     operations = random.sample([substitute_char, insert_char, delete_char], num_operations_to_apply)
 
@@ -27,7 +34,7 @@ def misspell_word(word: spacy.tokens.Doc, char_patterns: dict) -> str:
             syllable = operation(syllable, char_patterns)
         syllables[syllable_idx] = syllable
 
-    return " ".join(syllables)
+    return "".join(syllables)
 
 
 def substitute_char(word: str, char_patterns: dict) -> str:

@@ -18,7 +18,7 @@ def test_apply_precorrection_cut_type(generator):
     generator.pre_pos_probs = {"NOUN": 1.0}
     generator.pre_type_probs = {"CUT": 1.0}  # Force CUT type
     np.random.seed(42)
-    result = generator._apply_precorrection(text, doc)
+    result = generator._apply_precorrection(doc)
     # Should insert cut version of "elefante" before it
     print()
     print(result)
@@ -42,7 +42,7 @@ def test_apply_precorrection_pre_type(generator):
     generator.pre_pos_probs = {"NOUN": 1.0}
     generator.pre_type_probs = {"PRE": 1.0}  # Force PRE type
     with pytest.raises(NotImplementedError):
-        generator._apply_precorrection(text, doc)
+        generator._apply_precorrection(doc)
 
 
 def test_apply_precorrection_no_candidates(generator):
@@ -51,7 +51,7 @@ def test_apply_precorrection_no_candidates(generator):
     doc = generator.parse_text(text)
     generator.pre_pos_probs = {"NOUN": 1.0, "VERB": 1.0, "ADJ": 1.0}
     generator.pre_type_probs = {"CUT": 1.0}
-    result = generator._apply_precorrection(text, doc)
+    result = generator._apply_precorrection(doc)
     # Should return unchanged text when no valid candidates
     assert result == text
 
@@ -62,7 +62,7 @@ def test_apply_precorrection_short_word(generator):
     doc = generator.parse_text(text)
     generator.pre_pos_probs = {"NOUN": 1.0}
     generator.pre_type_probs = {"CUT": 1.0}
-    result = generator._apply_precorrection(text, doc)
+    result = generator._apply_precorrection(doc)
     # Should not modify text since "sol" is too short
     assert result == text
 
@@ -71,7 +71,7 @@ def test_apply_precorrection_empty_text(generator):
     """Test precorrection with empty text."""
     text = ""
     doc = generator.parse_text(text)
-    result = generator._apply_precorrection(text, doc)
+    result = generator._apply_precorrection(doc)
     assert result == text
 
 
@@ -79,7 +79,7 @@ def test_apply_precorrection_whitespace(generator):
     """Test precorrection with whitespace."""
     text = "   "
     doc = generator.parse_text(text)
-    result = generator._apply_precorrection(text, doc)
+    result = generator._apply_precorrection(doc)
     assert result == text
 
 
@@ -90,7 +90,7 @@ def test_apply_precorrection_multiple_candidates(generator):
     generator.pre_pos_probs = {"NOUN": 0.5, "ADJ": 0.5}
     generator.pre_type_probs = {"CUT": 1.0}
     np.random.seed(42)
-    result = generator._apply_precorrection(text, doc)
+    result = generator._apply_precorrection(doc)
     # Should insert cut version of either "elefante" or "hermoso"
     assert len(result.split()) == len(text.split()) + 1
     # check 2nd word is in 3th word
