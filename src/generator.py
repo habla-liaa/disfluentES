@@ -17,8 +17,9 @@ class SpanishDisfluencyGenerator:
     def __init__(
         self,
         num_repetitions: int = 3,
-        disfluency_type: List[str] = None,
         disfluency_type_probs: Dict[str, float] = None,
+        disfluency_variations: List[str] = None,
+        disfluency_sequence: List[str] = None,
         del_pos_probs: Dict[str, float] = None,
         pho_pos_probs: Dict[str, float] = None,
         sub_pos_probs: Dict[str, Dict[str, float]] = None,
@@ -45,7 +46,9 @@ class SpanishDisfluencyGenerator:
 
         Args:
             num_repetitions: Number of repeated disfluencies to apply
-            disfluency_type: Dictionary mapping disfluency types to their probabilities
+            disfluency_type_probs: Probabilities for disfluency types
+            disfluency_variations: List of specific disfluency types to apply num_variations times (defaults to None)
+            disfluency_sequence: List of specific disfluency types to apply num_repetitions times in order.
             del_pos_probs: POS tag probabilities for deletion
             pho_pos_probs: POS tag probabilities for phonological changes
             sub_pos_probs: POS tag and type probabilities for substitution
@@ -76,9 +79,9 @@ class SpanishDisfluencyGenerator:
             )
 
         self.num_repetitions = num_repetitions
-        self.disfluency_type = disfluency_type
-
-        # Load disfluency type probabilities from gin config or default values equivalent to all.gin
+        
+        self.disfluency_variations = disfluency_variations
+        self.disfluency_sequence = disfluency_sequence  
         self.disfluency_type_probs = disfluency_type_probs
 
         # Load POS probabilities from gin config

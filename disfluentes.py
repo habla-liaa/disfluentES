@@ -28,7 +28,6 @@ def generate_disfluencies(
         input_text: Input text or path to input file
         output_file: Path to output file (optional)
         config_file: Path to gin config file or list of paths that will be merged
-        num_repetitions: Number of disfluencies to apply (overrides config)
         num_variations: Number of variations to generate for each input
         process_sentences: Whether to process text sentence by sentence
         normalize_text: Whether to normalize the text before processing
@@ -80,8 +79,7 @@ def generate_disfluencies(
         # Process each sentence separately
         doc = nlp(text)
         sentences = list(doc.sents)
-        for sent in tqdm(sentences, desc="Processing sentences", total=len(sentences)):
-            
+        for sent in tqdm(sentences, desc="Processing sentences", total=len(sentences)):            
             results = generator.generate_disfluencies(
                 normalizer(sent.text) if normalize_text else sent.text,
                 num_variations
