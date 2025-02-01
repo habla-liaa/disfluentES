@@ -81,20 +81,18 @@ def generate_disfluencies(
         doc = nlp(text)
         sentences = list(doc.sents)
         for sent in tqdm(sentences, desc="Processing sentences", total=len(sentences)):
-            sent_variations = []
-            for _ in range(num_variations):
-                result = generator.generate_disfluencies(
-                    normalizer(sent.text) if normalize_text else sent.text,
-                    num_repetitions,
-                )
-                sent_variations.append(result)
-            results.extend(sent_variations)
+            
+            results = generator.generate_disfluencies(
+                normalizer(sent.text) if normalize_text else sent.text,
+                num_variations
+            )
+            results.extend(results)
     else:
         # Process entire text as one unit
         for _ in range(num_variations):
             result = generator.generate_disfluencies(
                 normalizer(text) if normalize_text else text,
-                num_repetitions,
+                num_variations
             )
             results.append(result)
     

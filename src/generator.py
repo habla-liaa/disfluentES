@@ -16,7 +16,7 @@ class SpanishDisfluencyGenerator:
 
     def __init__(
         self,
-        max_repetitions: int = 3,
+        num_repetitions: int = 3,
         disfluency_type: List[str] = None,
         disfluency_type_probs: Dict[str, float] = None,
         del_pos_probs: Dict[str, float] = None,
@@ -44,7 +44,7 @@ class SpanishDisfluencyGenerator:
         """Initialize the generator.
 
         Args:
-            max_repetitions: Maximum number of disfluencies to apply
+            num_repetitions: Number of repeated disfluencies to apply
             disfluency_type: Dictionary mapping disfluency types to their probabilities
             del_pos_probs: POS tag probabilities for deletion
             pho_pos_probs: POS tag probabilities for phonological changes
@@ -75,7 +75,7 @@ class SpanishDisfluencyGenerator:
                 "Please install Spanish language model: python -m spacy download es_core_news_lg"
             )
 
-        self.max_repetitions = max_repetitions
+        self.num_repetitions = num_repetitions
         self.disfluency_type = disfluency_type
 
         # Load disfluency type probabilities from gin config or default values equivalent to all.gin
@@ -118,16 +118,15 @@ class SpanishDisfluencyGenerator:
         return doc
 
     def generate_disfluencies(
-        self, text: str, num_repetitions: Optional[int] = None
+        self,
+        text: str,
+        num_variations: Optional[int] = None,
     ) -> str:
         """Generate disfluencies in the input text.
 
         Args:
             text: Input text to add disfluencies to
-            num_repetitions: Number of disfluencies to apply (defaults to max_repetitions)
-            disfluency_type: List of specific disfluency types to apply in order.
-                           Available types: ['DEL', 'PHO', 'SUB', 'INS', 'CUT', 'REP', 'PRE', 'FILL']
-            disfluency_type_probs: List of specific disfluency types to apply in order.
+            num_variations: Number of variations to apply (defaults to 1)
 
         Returns:
             Text with added disfluencies
@@ -135,72 +134,89 @@ class SpanishDisfluencyGenerator:
         if not text:
             return text
 
-        num_repetitions = num_repetitions or self.max_repetitions
+        num_variations = num_variations or 1
 
         doc = self.parse_text(text)
 
-        if self.disfluency_type:
+        results = []
+
+        if self.disfluency_variations:
+            for disfluency in self.disfluency_variations:
+                for _ in range(num_variations):
+                    result_text = self._apply_disfluency(disfluency, doc)
+                    results.append(result_text)
+
+        elif self.disfluency_sequence:
             # Deterministic mode: apply specified disfluencies in order
-            for disfluency in self.disfluency_type:
-                result_text = self._apply_disfluency(disfluency, doc)
-                doc = self.nlp(result_text)
+            for _ in range(num_variations):
+                for disfluency in self.disfluency_sequence:
+                    result_text = self._apply_disfluency(disfluency, doc)
+                    doc = self.nlp(result_text)
+                results.append(result_text)
         else:
             # Random mode: choose disfluencies based on probabilities
-            for _ in range(num_repetitions):
-                disfluency = random.choices(
-                    list(self.disfluency_type_probs.keys()),
-                    weights=list(self.disfluency_type_probs.values()),
-                )[0]
-                not_failed = True
-                while not_failed:
-                    try:    
-                        result_text = self._apply_disfluency(disfluency, doc)
-                        doc = self.nlp(result_text)
-                        not_failed = False
-                    except Exception as e:
-                        print("Disfluency failed for", disfluency, doc.text, "with exception", e)
-                        pass
+            for _ in range(num_variations):
+                for _ in range(self.num_repetitions):
+                    disfluency = random.choices(
+                        list(self.disfluency_type_probs.keys()),
+                        weights=list(self.disfluency_type_probs.values()),
+                    )[0]
+                    not_failed = True
+                    while not_failed:
+                        try:
+                            result_text = self._apply_disfluency(disfluency, doc)
+                            doc = self.nlp(result_text)
+                            not_failed = False
+                        except Exception as e:
+                            print(
+                                "Disfluency failed for",
+                                disfluency,
+                                doc.text,
+                                "with exception",
+                                e,
+                            )
+                            pass
+                results.append(result_text)
 
-        return result_text
+        return results
 
     def _apply_disfluency(self, disfluency: str, doc: spacy.tokens.Doc) -> str:
         """Apply a specific disfluency type."""
 
-        "Check members are not None for disfluency type"
-        if disfluency == "DEL" and self.del_pos_probs is None:
-            raise ValueError("DEL probabilities not set")
-        if disfluency == "PHO" and self.pho_pos_probs is None:
-            raise ValueError("PHO probabilities not set")
-        if disfluency == "SUB" and self.sub_pos_probs is None and self.sub_type_probs is None:
-            raise ValueError("SUB probabilities not set")
-        if disfluency == "INS" and self.ins_type_probs is None and self.ins_target_pos is None:
-            raise ValueError("INS probabilities not set")
-        if disfluency == "CUT" and self.cut_pos_probs is None:
-            raise ValueError("CUT probabilities not set")
-        if disfluency == "REP" and self.rep_pos_probs is None and self.rep_order_probs is None:
-            raise ValueError("REP probabilities not set")
-        if disfluency == "PRE" and self.pre_pos_probs is None and self.pre_type_probs is None:
-            raise ValueError("PRE probabilities not set")
-        
-
-        if disfluency == "DEL":
+        if disfluency == "DEL" and self.del_pos_probs is not None:
             return self._apply_deletion(doc)
-        elif disfluency == "PHO":
+        elif disfluency == "PHO" and self.pho_pos_probs is not None:
             return self._apply_phonological(doc)
-        elif disfluency == "SUB":
+        elif (
+            disfluency == "SUB"
+            and self.sub_pos_probs is not None
+            and self.sub_type_probs is not None
+        ):
             return self._apply_substitution(doc)
-        elif disfluency == "INS":
+        elif (
+            disfluency == "INS"
+            and self.ins_type_probs is not None
+            and self.ins_target_pos is not None
+        ):
             return self._apply_insertion(doc)
-        elif disfluency == "CUT":
+        elif disfluency == "CUT" and self.cut_pos_probs is not None:
             return self._apply_cut(doc)
-        elif disfluency == "REP":
+        elif (
+            disfluency == "REP"
+            and self.rep_pos_probs is not None
+            and self.rep_order_probs is not None
+        ):
             return self._apply_repetition(doc)
-        elif disfluency == "PRE":
+        elif (
+            disfluency == "PRE"
+            and self.pre_pos_probs is not None
+            and self.pre_type_probs is not None
+        ):
             return self._apply_precorrection(doc)
-        elif disfluency == "FILL":
+        elif disfluency == "FILL" and self.fillers is not None:
             return self._apply_filler(doc)
         else:
-            raise ValueError(f"Invalid disfluency type: {disfluency}")
+            raise ValueError("Disfluency type not set")
 
     def _apply_deletion(self, doc: spacy.tokens.Doc) -> str:
         """Apply word deletion disfluency."""
@@ -301,7 +317,7 @@ class SpanishDisfluencyGenerator:
                 self.nlp,
                 self.adj_inflection_probs,
                 self.verb_conjugation_probs,
-            self.substitution_similarity_params,
+                self.substitution_similarity_params,
                 self.char_patterns,
                 self.articles_map,
                 self.prepositions,
@@ -317,8 +333,6 @@ class SpanishDisfluencyGenerator:
             embed()
 
         result = " ".join(words)
-
-        
 
         return result
 
@@ -399,11 +413,10 @@ class SpanishDisfluencyGenerator:
         return " ".join(words)
 
     def _apply_repetition(self, doc: spacy.tokens.Doc) -> str:
-        
         """Apply word repetition disfluency."""
-    
+
         text = doc.text
-        
+
         if len(text.strip()) == 0:
             return text
 
@@ -411,12 +424,14 @@ class SpanishDisfluencyGenerator:
             list(self.rep_order_probs.keys()),
             weights=list(self.rep_order_probs.values()),
         )[0]
-        candidates = [(i, token) for i, token in enumerate(doc) 
-                      if token.pos_ in self.rep_pos_probs and i >= order - 1]
+        candidates = [
+            (i, token)
+            for i, token in enumerate(doc)
+            if token.pos_ in self.rep_pos_probs and i >= order - 1
+        ]
 
-        
         if not candidates:  # repeat random word
-            print('no candidates')
+            print("no candidates")
             idx = random.choice(range(len(text.split())))
             return text_ops.repeat_words(text, idx, 1)
 
