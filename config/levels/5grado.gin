@@ -88,11 +88,11 @@ SpanishDisfluencyGenerator.pre_type_probs = {
 }
 
 SpanishDisfluencyGenerator.disfluency_type_probs = {
-    'DEL': 0.058,  # D: 5.750799
-    'INS': 0.108,  # INS: 10.756124
-    'PHO': 0.030,  # PHO: 2.981896
-    'PRE': 0.274,  # PRE: 27.369542
-    'CUT': 0.003,  # RC: 0.319489
-    'REP': 0.264,  # REP: 26.411076
-    'SUB': 0.264  # S: 26.411076
+    'DEL': 0.057,  # D: 5.787781
+    'INS': 0.120,  # INS: 12.004287
+    'PHO': 0.031,  # PHO: 3.108253
+    'PRE': 0.259,  # PRE: 25.937835
+    'CUT': 0.003,  # RC: 0.321543
+    'REP': 0.263,  # REP: 26.366559
+    'SUB': 0.264  # S: 26.473741
 }

@@ -1,6 +1,6 @@
 # POS tag probabilities for different operations
 
-# Bind POS probabilities to generator class
+# DELETIONS POS tag probabilities 
 SpanishDisfluencyGenerator.del_pos_probs = {
     'NOUN': 0.3,
     'VERB': 0.2,
@@ -10,6 +10,7 @@ SpanishDisfluencyGenerator.del_pos_probs = {
     'DET': 0.05
 }
 
+# PHONOLOGICAL error POS tag probabilities
 SpanishDisfluencyGenerator.pho_pos_probs = {
     'NOUN': 0.25,
     'VERB': 0.25,
@@ -18,6 +19,7 @@ SpanishDisfluencyGenerator.pho_pos_probs = {
     'PROPN': 0.15
 }
 
+# POS tag probabilities of INSERTIONS 
 SpanishDisfluencyGenerator.ins_type_probs = {
     'articles': 0.3,
     'prepositions': 0.3,
@@ -25,6 +27,7 @@ SpanishDisfluencyGenerator.ins_type_probs = {
     'discourse_markers': 0.2
 }
 
+# POS tag probabilities of context of insertion
 SpanishDisfluencyGenerator.ins_target_pos = {
     'NOUN': 0.4,
     'ADJ': 0.3,
@@ -32,6 +35,7 @@ SpanishDisfluencyGenerator.ins_target_pos = {
     'ADV': 0.1
 }
 
+# POS tag probabilities of CUT words
 SpanishDisfluencyGenerator.cut_pos_probs = {
     'VERB': 0.3,
     'NOUN': 0.3,
@@ -39,6 +43,7 @@ SpanishDisfluencyGenerator.cut_pos_probs = {
     'ADV': 0.2
 }
 
+# POS tag probabilities of REPEATED words
 SpanishDisfluencyGenerator.rep_pos_probs = {
     'VERB': 0.3,
     'NOUN': 0.25,
@@ -47,12 +52,13 @@ SpanishDisfluencyGenerator.rep_pos_probs = {
     'DET': 0.1
 }
 
+# POS tag probabilities of number of REPEATED words
 SpanishDisfluencyGenerator.rep_order_probs = {
     1: 0.5,
     2: 0.5 
 }
 
-
+# POS tag probabilities of PRECORRECTIONS words
 SpanishDisfluencyGenerator.pre_pos_probs = {
     'VERB': 0.4,
     'NOUN': 0.3,
@@ -60,6 +66,7 @@ SpanishDisfluencyGenerator.pre_pos_probs = {
     'ADV': 0.1
 }
  
+# POS tag probabilities of PRECORRECTIONS type
 SpanishDisfluencyGenerator.pre_type_probs = {
     'PRE': 0.2,
     'CUT': 0.78,

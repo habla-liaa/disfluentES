@@ -157,14 +157,32 @@ class SpanishDisfluencyGenerator:
                         result_text = self._apply_disfluency(disfluency, doc)
                         doc = self.nlp(result_text)
                         not_failed = False
-                    except:
-                        print("Disfluency failed for", disfluency, doc.text)
+                    except Exception as e:
+                        print("Disfluency failed for", disfluency, doc.text, "with exception", e)
                         pass
 
         return result_text
 
     def _apply_disfluency(self, disfluency: str, doc: spacy.tokens.Doc) -> str:
         """Apply a specific disfluency type."""
+
+        "Check members are not None for disfluency type"
+        if disfluency == "DEL" and self.del_pos_probs is None:
+            raise ValueError("DEL probabilities not set")
+        if disfluency == "PHO" and self.pho_pos_probs is None:
+            raise ValueError("PHO probabilities not set")
+        if disfluency == "SUB" and self.sub_pos_probs is None and self.sub_type_probs is None:
+            raise ValueError("SUB probabilities not set")
+        if disfluency == "INS" and self.ins_type_probs is None and self.ins_target_pos is None:
+            raise ValueError("INS probabilities not set")
+        if disfluency == "CUT" and self.cut_pos_probs is None:
+            raise ValueError("CUT probabilities not set")
+        if disfluency == "REP" and self.rep_pos_probs is None and self.rep_order_probs is None:
+            raise ValueError("REP probabilities not set")
+        if disfluency == "PRE" and self.pre_pos_probs is None and self.pre_type_probs is None:
+            raise ValueError("PRE probabilities not set")
+        
+
         if disfluency == "DEL":
             return self._apply_deletion(doc)
         elif disfluency == "PHO":
@@ -289,8 +307,8 @@ class SpanishDisfluencyGenerator:
                 self.prepositions,
                 self.conjunctions,
             )
-        except:
-            print("Substitution failed for", token)
+        except Exception as e:
+            print("Substitution failed for", token, "with exception", e)
             pass
 
         # if  there is a None in the list print sub_type
@@ -381,8 +399,11 @@ class SpanishDisfluencyGenerator:
         return " ".join(words)
 
     def _apply_repetition(self, doc: spacy.tokens.Doc) -> str:
+        
         """Apply word repetition disfluency."""
+    
         text = doc.text
+        
         if len(text.strip()) == 0:
             return text
 
@@ -390,14 +411,12 @@ class SpanishDisfluencyGenerator:
             list(self.rep_order_probs.keys()),
             weights=list(self.rep_order_probs.values()),
         )[0]
+        candidates = [(i, token) for i, token in enumerate(doc) 
+                      if token.pos_ in self.rep_pos_probs and i >= order - 1]
 
-        candidates = [
-            (i, token)
-            for i, token in enumerate(doc)
-            if token.pos_ in self.rep_pos_probs and i >= order - 1
-        ]
-
+        
         if not candidates:  # repeat random word
+            print('no candidates')
             idx = random.choice(range(len(text.split())))
             return text_ops.repeat_words(text, idx, 1)
 
