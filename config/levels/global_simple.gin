@@ -1,0 +1,215 @@
+include "config/base_words.gin"
+#include "config/base_probs.gin"
+#include "config/base_substitution.gin"
+
+
+#---------------DELETIONS-----------------------#
+
+SpanishDisfluencyGenerator.del_pos_probs = {'ADJ': 0.039,
+ 'ADP': 0.285,
+ 'ADV': 0.039,
+ 'AUX': 0.046,
+ 'CCONJ': 0.082,
+ 'DET': 0.272,
+ 'NOUN': 0.059,
+ 'NUM': 0.007,
+ 'PRON': 0.111,
+ 'SCONJ': 0.03,
+ 'VERB': 0.03}
+
+#----------------SUBSTITUTIONS--------------------------#
+
+# SUSTITUTIONS
+SpanishDisfluencyGenerator.sub_pos_probs = {'ADJ': 0.104,
+ 'ADP': 0.092,
+ 'ADV': 0.014,
+ 'AUX': 0.045,
+ 'CCONJ': 0.008,
+ 'DET': 0.132,
+ 'INTJ': 0.001,
+ 'NOUN': 0.221,
+ 'NUM': 0.01,
+ 'PRON': 0.063,
+ 'PROPN': 0.009,
+ 'SCONJ': 0.018,
+ 'VERB': 0.284}
+
+
+SpanishDisfluencyGenerator.sub_type_probs = {
+    'VERB': {
+        'misspelling': 0.1,
+        'inflection': 0.739,
+        'similarity': 0.217,
+        'nominalization': 0.043
+    },
+    'NOUN': {
+        'inflection': 0.76,
+        'similarity': 0.20,
+        'misspelling': 0.04
+    },
+
+
+    'ADJ': {
+        'inflection': 0.5,
+        'similarity': 0.10,
+        'misspelling': 0.04
+    },
+    'ADV': {'misspelling': 1.0},
+    'AUX': {'misspelling': 1.0},
+    'ADP': {
+        'preposition': 0.6,
+        'conjunction': 0.4
+    },
+    'CCONJ': {'alternative': 1.0},
+    'SCONJ': {'alternative': 1.0}
+}
+
+SpanishDisfluencyGenerator.adj_inflection_probs = {
+    'number': 0.5,
+    'gender': 0.5
+}
+
+SpanishDisfluencyGenerator.substitution_similarity_params = {    
+    'n_words': 10,
+    'cutoff': 0.8,
+    'vector_similarity': True,
+    'close_matches': True
+}
+
+SpanishDisfluencyGenerator.verb_conjugation_probs = {
+    'change_number': 0.7,
+    'change_person': 0.05,
+    'change_tense': 0.1,
+    'change_mood': 0.05,
+    'infinitive': 0.1
+}
+
+#----------------INSERTIONS------------------------#
+
+SpanishDisfluencyGenerator.ins_target_pos = {
+ 'DET': 0.40,
+ 'NOUN': 0.40,
+ 'VERB': 0.20}
+
+#SpanishDisfluencyGenerator.ins_target_pos = {
+# 'ADJ': 0.064,
+# 'ADP': 0.077,
+# 'ADV': 0.027,
+# 'AUX': 0.013,
+# 'CCONJ': 0.008,
+# 'DET': 0.17,
+# 'NOUN': 0.247,
+# 'NUM': 0.007,
+# 'PRON': 0.04,
+# 'PROPN': 0.021,
+# 'SCONJ': 0.019,
+# 'VERB': 0.128}
+
+SpanishDisfluencyGenerator.ins_type_probs = {
+    'articles': 0.30,
+    'prepositions': 0.30,
+    'conjunctions': 0.30,
+    'disc_markers': 0.10
+}
+
+# Debería ser así. 
+#SpanishDisfluencyGenerator.ins_type_probs = {'DET': 0.34,
+# 'ADP': 0.21,
+# 'CCONJ': 0.133,
+# 'ADV': 0.066,
+# 'PRON': 0.059,
+# 'NOUN': 0.045,
+# 'SCONJ': 0.045,
+# 'VERB': 0.043,
+# 'AUX': 0.016,
+# 'INTJ': 0.016,
+# 'ADJ': 0.013,
+# 'NUM': 0.008,
+# 'PROPN': 0.005}
+
+
+#----------------REAL CUTS------------------------#
+# Por ahora lo saco
+#SpanishDisfluencyGenerator.realcuts_pos_probs = {'NOUN': 0.625, 
+#'PROPN': 0.25, 
+#'VERB': 0.125}
+
+
+#----------------PRECORRECTIONS------------------------#
+# Type of PRECORRECTIONS
+
+SpanishDisfluencyGenerator.pre_type_probs = {
+    #'PRE': 0.22,
+    #'CUT': 0.78
+    'CUT': 1.0,
+}
+
+# CUT
+SpanishDisfluencyGenerator.cut_pos_probs = {'VERB': 0.305,
+ 'ADJ': 0.266,
+ 'NOUN': 0.239,
+ 'DET': 0.063,
+ 'ADP': 0.041,
+ 'AUX': 0.034,
+ 'PROPN': 0.02,
+ 'ADV': 0.018,
+ 'NUM': 0.005,
+ 'PRON': 0.005,
+ 'SCONJ': 0.005}
+
+# PRE
+SpanishDisfluencyGenerator.pre_pos_probs = {'NOUN': 0.373,
+ 'VERB': 0.28,
+ 'ADJ': 0.107,
+ 'ADP': 0.067,
+ 'AUX': 0.053,
+ 'DET': 0.053,
+ 'ADV': 0.027,
+ 'SCONJ': 0.027,
+ 'PRON': 0.013}
+
+
+#--------------REPETITIONS-------------------------------#
+
+# POS tag probabilities of number of REPEATED words
+SpanishDisfluencyGenerator.rep_order_probs =  {
+    #1: 1.0,
+    1: 0.7,
+    2: 0.3 
+}
+
+
+SpanishDisfluencyGenerator.rep_pos_probs = {'ADP': 0.332,
+ 'DET': 0.136,
+ 'VERB': 0.112,
+ 'NOUN': 0.094,
+ 'AUX': 0.084,
+ 'ADJ': 0.077,
+ 'PRON': 0.059,
+ 'CCONJ': 0.056,
+ 'ADV': 0.028,
+ 'PROPN': 0.009,
+ 'SCONJ': 0.008,
+ 'NUM': 0.003}
+
+
+#----------------PHONETIC DISFLUENCIES------------------------#
+
+SpanishDisfluencyGenerator.pho_pos_probs = {'ADJ': 0.18,
+ 'ADP': 0.016,
+ 'ADV': 0.008,
+ 'AUX': 0.016,
+ 'DET': 0.031,
+ 'INTJ': 0.008,
+ 'NOUN': 0.414,
+ 'NUM': 0.023,
+ 'PRON': 0.031,
+ 'PROPN': 0.008,
+ 'SCONJ': 0.023,
+ 'VERB': 0.242}
+
+
+#----------------PROPORTIONS------------------------#
+# Proportions of each type of disfluency
+#SpanishDisfluencyGenerator.disfluency_variations = ['DEL', 'INS', 'PHO', 'PRE', 'REP', 'SUB']
+SpanishDisfluencyGenerator.disfluency_variations = ['DEL', 'PRE', 'REP']

@@ -278,8 +278,8 @@ class SpanishDisfluencyGenerator:
 
 def main():
     dg = SpanishDisfluencyGenerator()
-    input_text = '../../textos/5_grado.txt'
-    output_text = '../../textos/5_grado_disfluent.txt'
+    input_text = 'texts/3_grado.txt'
+    output_text = 'output/3_grado_disfluent.txt'
     
     with open(input_text, 'r', encoding='utf-8') as f:
         text = f.read()
@@ -319,26 +319,26 @@ def main():
     #pos_tag_pre = {'VERB': 0.25, 'NOUN': 0.37, 'ADJ': 0.12, 'ADP': 0.12, 'DET': 0.01, 'AUX': 0.01, 'PRON': 0.05, 'NUM': 0.05, 'ADV': 0.05}   
 
     # TERCERO
-    #pos_tag_del = {'DET': 0.18, 'NOUN':0.13, 'ADP': 0.17, 'CCONJ': 0.16, 'PRON': 0.06, 'AUX': 0.02}
-    #pos_tag_sub = {'VERB':0.22, 'NOUN':0.41, 'ADJ':0.12, 'DET':0.11, 'ADP':0.05}
+    pos_tag_del = {'DET': 0.18, 'NOUN':0.13, 'ADP': 0.17, 'CCONJ': 0.16, 'PRON': 0.06, 'AUX': 0.02}
+    pos_tag_sub = {'VERB':0.22, 'NOUN':0.41, 'ADJ':0.12, 'DET':0.11, 'ADP':0.05}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
-    #target_pos_ins = {'NOUN':0.35, 'DET':0.21, 'ADJ':0.08, 'VERB':0.09, 'ADP':0.04}
+    target_pos_ins = {'NOUN':0.35, 'DET':0.21, 'ADJ':0.08, 'VERB':0.09, 'ADP':0.04}
     #Son los pos tags más frecuentemente insertados
-    #insertion_probs = {'articles':0.34, 'prepositions': 0.18, 'conjunctions':0.17, 'disc_markers':0.10} 
-    #pos_tag_cut = {'VERB': 0.19, 'NOUN': 0.26, 'ADJ': 0.35, 'ADP': 0.01, 'DET': 0.11}
-    #pos_tag_rep = {'ADP': 0.14, 'DET': 0.22, 'VERB': 0.11, 'AUX': 0.10, 'NOUN': 0.13}
-    #pos_tag_pre = {'VERB': 0.12, 'NOUN': 0.29, 'ADJ': 0.12, 'ADP': 0.06, 'DET': 0.01, 'AUX': 0.03, 'PRON': 0.01, 'NUM': 0.05, 'ADV': 0.05}   
+    insertion_probs = {'articles':0.34, 'prepositions': 0.18, 'conjunctions':0.17, 'disc_markers':0.10} 
+    pos_tag_cut = {'VERB': 0.19, 'NOUN': 0.26, 'ADJ': 0.35, 'ADP': 0.01, 'DET': 0.11}
+    pos_tag_rep = {'ADP': 0.14, 'DET': 0.22, 'VERB': 0.11, 'AUX': 0.10, 'NOUN': 0.13}
+    pos_tag_pre = {'VERB': 0.12, 'NOUN': 0.29, 'ADJ': 0.12, 'ADP': 0.06, 'DET': 0.01, 'AUX': 0.03, 'PRON': 0.01, 'NUM': 0.05, 'ADV': 0.05}   
 
     # QUINTO
-    pos_tag_del = {'DET': 0.42, 'NOUN':0.12, 'ADP': 0.13, 'CCONJ': 0.08, 'PRON': 0.24, 'AUX': 0.02}
-    pos_tag_sub = {'VERB':0.17, 'NOUN':0.17, 'ADJ':0.12, 'DET':0.18, 'ADP':0.06}
+    #pos_tag_del = {'DET': 0.42, 'NOUN':0.12, 'ADP': 0.13, 'CCONJ': 0.08, 'PRON': 0.24, 'AUX': 0.02}
+    #pos_tag_sub = {'VERB':0.17, 'NOUN':0.17, 'ADJ':0.12, 'DET':0.18, 'ADP':0.06}
     #Target pos es el pos tag que aparece más frecuentemente después de una inserción
-    target_pos_ins = {'NOUN':0.25, 'DET':0.11, 'ADJ':0.17, 'VERB':0.08, 'ADP':0.07}
+    #target_pos_ins = {'NOUN':0.25, 'DET':0.11, 'ADJ':0.17, 'VERB':0.08, 'ADP':0.07}
     #Son los pos tags más frecuentemente insertados
-    insertion_probs = {'articles':0.47, 'prepositions': 0.09, 'conjunctions':0.03, 'disc_markers':0.10} 
-    pos_tag_cut = {'VERB': 0.18, 'NOUN': 0.26, 'ADJ': 0.31, 'ADP': 0.03, 'DET': 0.04}
-    pos_tag_rep = {'ADP': 0.40, 'DET': 0.11, 'VERB': 0.03, 'AUX': 0.03, 'NOUN': 0.09, 'PRON': 0.22}
-    pos_tag_pre = {'VERB': 0.12, 'NOUN': 0.28, 'ADJ': 0.09, 'ADP': 0.02, 'DET': 0.02, 'AUX': 0.07, 'PRON': 0.05, 'NUM': 0.05, 'ADV': 0.05}   
+    #insertion_probs = {'articles':0.47, 'prepositions': 0.09, 'conjunctions':0.03, 'disc_markers':0.10} 
+    #pos_tag_cut = {'VERB': 0.18, 'NOUN': 0.26, 'ADJ': 0.31, 'ADP': 0.03, 'DET': 0.04}
+    #pos_tag_rep = {'ADP': 0.40, 'DET': 0.11, 'VERB': 0.03, 'AUX': 0.03, 'NOUN': 0.09, 'PRON': 0.22}
+    #pos_tag_pre = {'VERB': 0.12, 'NOUN': 0.28, 'ADJ': 0.09, 'ADP': 0.02, 'DET': 0.02, 'AUX': 0.07, 'PRON': 0.05, 'NUM': 0.05, 'ADV': 0.05}   
 
 
 
@@ -353,12 +353,14 @@ def main():
         ('FILL', lambda s: dg.generate_FILL(s))
     ]
 
+
+
     
     with open(output_text, 'w') as out_f:
         for sentence in sentences:
 
             for _, method_func in methods_all:
-                for _ in range(10):  
+                for _ in range(30):  
                     try:
                         modified = method_func(sentence)
                         if modified != sentence:  

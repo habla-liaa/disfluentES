@@ -251,6 +251,7 @@ class SpanishDisfluencyGenerator:
 
         words = text.split()
         words.pop(idx)
+
         return " ".join(words)
 
     def _apply_phonological(self, doc: spacy.tokens.Doc) -> str:

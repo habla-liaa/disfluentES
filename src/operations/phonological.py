@@ -84,6 +84,8 @@ def insert_char(word: str, char_patterns: dict) -> str:
     elif position_type == "end":
         return word + char_to_insert
     else:
+        if len(word) <= 2:
+            return word
         pos = random.randint(1, len(word) - 1)
         return word[:pos] + char_to_insert + word[pos:]
 

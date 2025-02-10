@@ -20,7 +20,8 @@ def generate_disfluencies(
     num_repetitions: int = 1,
     num_variations: int = 1,
     process_sentences: bool = False,
-    normalize_text: bool = True
+    normalize_text: bool = True,
+    remove_duplicates: bool = True
 ) -> Union[str, List[str]]:
     """Generate disfluencies in Spanish text.
     
@@ -80,23 +81,26 @@ def generate_disfluencies(
         doc = nlp(text)
         sentences = list(doc.sents)
         for sent in tqdm(sentences, desc="Processing sentences", total=len(sentences)):            
-            results = generator.generate_disfluencies(
-                normalizer(sent.text) if normalize_text else sent.text,
+            print(sent.text)
+            sent_results = generator.generate_disfluencies(
+                normalizer(sent.text).strip() if normalize_text else sent.text,
                 num_variations
             )
-            results.extend(results)
+            results.extend([normalizer(sent.text) for r in range(num_variations)])
+            results.extend(sent_results)
     else:
         # Process entire text as one unit
         for _ in range(num_variations):
-            result = generator.generate_disfluencies(
-                normalizer(text) if normalize_text else text,
+            sent_results = generator.generate_disfluencies(
+                normalizer(text).strip() if normalize_text else text,
                 num_variations
             )
-            results.append(result)
+            results.append(sent_results)
     
     # Remove duplicates and single word results
     results = [result for result in results if len(result.split()) > 1]
-    results = list(set(results))
+    if remove_duplicates:
+        results = list(set(results))
 
     # Write output
     if output_file:

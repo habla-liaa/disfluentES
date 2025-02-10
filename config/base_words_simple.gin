@@ -1,0 +1,55 @@
+SpanishDisfluencyGenerator.articles = [ 'el', 'los', 'la', 'las', 'un', 'una', 'unas' ,'unos']
+SpanishDisfluencyGenerator.prepositions = ['de', 'en', 'a', 'por', 'para', 'con']
+SpanishDisfluencyGenerator.conjunctions = {
+    'CCONJ': ['y', 'e','o', 'u'],
+    'SCONJ': ['que', 'porque', 'si']
+}
+SpanishDisfluencyGenerator.discourse_markers = ['ay', 'perdón', 'digo', 'no']
+
+SpanishDisfluencyGenerator.fillers = ['e', 'a', 'em', 'ah']
+
+
+SpanishDisfluencyGenerator.articles_map = {
+                    'la': ['una'],
+                    'una': ['la'],
+                    'el': ['un'],
+                    'un': ['el'],
+                    'los': ['las'],
+                    'las': ['los']                
+                    }
+
+SpanishDisfluencyGenerator.char_patterns = {
+    'substitutions': {
+        'consonants': {
+            'b': ['d'],
+            'd': ['t'],
+            'c': ['g'],
+            'g': ['c']
+        },
+        'vowels': {
+            'i': ['e'],
+            'u': ['o'],
+            'a': ['o'],
+            'e': ['ie'],
+            'o': ['a']
+        },
+        'diphthongs': {
+            'ie': ['e', 'ei'],
+            'ei': ['ie', 'e', 'i'],
+        }
+    },
+    'insertions': {
+        'position': {
+            'start': ['p'],
+            'middle': ['i'],
+            'end': ['s', 'o']
+        }
+    },
+    'deletions': {
+        'position': {
+            'start': ['p'],
+            'middle': ['n', 'x'],
+            'end': ['s', 'z']
+        }
+    }
+}
