@@ -1,14 +1,13 @@
 """Text operations for Spanish disfluency generation."""
 
 import random
-import re
 import spacy
 from typing import Union
 from difflib import get_close_matches
+from src.operations.utils import clean_word
 from src.operations.verbs import conjugate_verb
 from src.operations.noun_adj import to_plural, to_singular, to_masculine, to_feminine
 from src.operations.phonological import misspell_word
-from IPython import embed
 
 def cut_word(
     word: spacy.tokens.Doc,
