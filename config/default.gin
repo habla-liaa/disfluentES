@@ -1,2 +1,16 @@
 include "config/base_words.gin"
 include "config/base_probs.gin"
+include "config/base_substitution.gin"
+include "config/base_insertion.gin"
+include "config/base_repetition.gin"
+include "config/base_precorrection.gin"
+
+SpanishDisfluencyGenerator.disfluency_uniform = [
+    'DEL',
+    'PRE',
+    'REP',
+    'INS',
+    'SUB',
+    'CUT',
+    'PHO'
+]

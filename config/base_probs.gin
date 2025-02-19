@@ -72,3 +72,19 @@ SpanishDisfluencyGenerator.pre_type_probs = {
     'CUT': 0.78,
     'POS_CUT': 0.02
 }
+
+SpanishDisfluencyGenerator.sub_pos_probs={
+    'ADJ': 0.114, 
+    'ADP': 0.086,
+    'ADV': 0.018,
+    'AUX': 0.044,
+    'CCONJ': 0.007,
+    'DET': 0.126,
+    'INTJ': 0.001,
+    'NOUN': 0.23,
+    'NUM': 0.009,
+    'PRON': 0.066,
+    'PROPN': 0.012,
+    'SCONJ': 0.018,
+    'VERB': 0.271
+}
