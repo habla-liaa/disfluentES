@@ -1,0 +1,8 @@
+include "config/base_words.gin"
+include "config/base_substitution.gin"
+include "config/base_insertion.gin"
+include "config/base_repetition.gin"
+include "config/base_precorrection.gin"
+include "config/global_pos_probs.gin"
+
+SpanishDisfluencyGenerator.disfluency_type_probs={'CUT': 0.005, 'DEL': 0.067, 'INS': 0.107, 'PHO': 0.029, 'PRE': 0.303, 'REP': 0.244, 'SUB': 0.245}

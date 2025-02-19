@@ -86,25 +86,30 @@ SpanishDisfluencyGenerator.verb_conjugation_probs = {
 
 #----------------INSERTIONS------------------------#
 
-SpanishDisfluencyGenerator.ins_target_pos = {
- 'ADJ': 0.064,
- 'ADP': 0.077,
- 'ADV': 0.027,
- 'AUX': 0.013,
- 'CCONJ': 0.008,
- 'DET': 0.17,
- 'NOUN': 0.247,
- 'NUM': 0.007,
- 'PRON': 0.04,
- 'PROPN': 0.021,
- 'SCONJ': 0.019,
- 'VERB': 0.128}
+SpanishDisfluencyGenerator.ins_pos_probs = {
+ 'DET': 0.40,
+ 'NOUN': 0.40,
+ 'VERB': 0.20}
+
+#SpanishDisfluencyGenerator.ins_pos_probs = {
+# 'ADJ': 0.064,
+# 'ADP': 0.077,
+# 'ADV': 0.027,
+# 'AUX': 0.013,
+# 'CCONJ': 0.008,
+# 'DET': 0.17,
+# 'NOUN': 0.247,
+# 'NUM': 0.007,
+# 'PRON': 0.04,
+# 'PROPN': 0.021,
+# 'SCONJ': 0.019,
+# 'VERB': 0.128}
 
 SpanishDisfluencyGenerator.ins_type_probs = {
-    'articles': 0.34,
-    'prepositions': 0.21,
-    'conjunctions': 0.178,
-    'disc_markers': 0.20
+    'articles': 0.30,
+    'prepositions': 0.30,
+    'conjunctions': 0.30,
+    'disc_markers': 0.10
 }
 
 # Debería ser así. 
@@ -125,7 +130,10 @@ SpanishDisfluencyGenerator.ins_type_probs = {
 
 #----------------REAL CUTS------------------------#
 # Por ahora lo saco
-#SpanishDisfluencyGenerator.realcuts_pos_probs = {'NOUN': 0.632, 'PROPN': 0.158, 'VERB': 0.158}
+#SpanishDisfluencyGenerator.realcuts_pos_probs = {'NOUN': 0.625, 
+#'PROPN': 0.25, 
+#'VERB': 0.125}
+
 
 #----------------PRECORRECTIONS------------------------#
 # Type of PRECORRECTIONS
@@ -164,10 +172,12 @@ SpanishDisfluencyGenerator.pre_pos_probs = {'NOUN': 0.373,
 #--------------REPETITIONS-------------------------------#
 
 # POS tag probabilities of number of REPEATED words
-SpanishDisfluencyGenerator.rep_order_probs = {
-    1: 0.5,
-    2: 0.5 
+SpanishDisfluencyGenerator.rep_order_probs =  {
+    #1: 1.0,
+    1: 0.7,
+    2: 0.3 
 }
+
 
 SpanishDisfluencyGenerator.rep_pos_probs = {'ADP': 0.332,
  'DET': 0.136,
@@ -201,4 +211,6 @@ SpanishDisfluencyGenerator.pho_pos_probs = {'ADJ': 0.18,
 
 #----------------PROPORTIONS------------------------#
 # Proportions of each type of disfluency
-SpanishDisfluencyGenerator.disfluency_variations = ['DEL', 'REP']
+# SpanishDisfluencyGenerator.disfluency_uniform = ['DEL', 'INS', 'PHO', 'PRE', 'REP', 'SUB']
+# SpanishDisfluencyGenerator.disfluency_uniform = ['DEL', 'PRE', 'REP']
+

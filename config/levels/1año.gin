@@ -1,86 +1,22 @@
-# Generator settings
-
 include "config/base_words.gin"
-include "config/base_probs.gin"
 include "config/base_substitution.gin"
+include "config/base_insertion.gin"
+include "config/base_repetition.gin"
+include "config/base_precorrection.gin"
 
-# use these settings for primero
-#pos_tag_del = {'DET': 0.27, 'NOUN':0.08, 'ADP': 0.29, 'CCONJ': 0.05, 'PRON': 0.10, 'AUX': 0.05}
-#pos_tag_sub = {'VERB':0.24, 'NOUN':0.24, 'ADJ':0.19, 'DET':0.11, 'ADP':0.08}
-#Target pos es el pos tag que aparece más frecuentemente después de una inserción
-#target_pos_ins = {'NOUN':0.28, 'DET':0.22, 'ADJ':0.02, 'VERB':0.12, 'ADP':0.07}
-#Son los pos tags más frecuentemente insertados
-#insertion_probs = {'articles':0.31, 'prepositions': 0.23, 'conjunctions':0.11, 'disc_markers':0.10} 
-#pos_tag_cut = {'VERB': 0.41, 'NOUN': 0.21, 'ADJ': 0.25, 'ADP': 0.10, 'DET': 0.03}
-#pos_tag_rep = {'ADP': 0.41, 'DET': 0.08, 'VERB': 0.17, 'AUX': 0.09, 'NOUN': 0.08}
-#pos_tag_pre = {'VERB': 0.25, 'NOUN': 0.37, 'ADJ': 0.12, 'ADP': 0.12, 'DET': 0.01, 'AUX': 0.01, 'PRON': 0.05, 'NUM': 0.05, 'ADV': 0.05}
+SpanishDisfluencyGenerator.disfluency_type_probs={'CUT': 0.005, 'DEL': 0.079, 'INS': 0.129, 'PHO': 0.023, 'PRE': 0.291, 'REP': 0.266, 'SUB': 0.208}
 
-SpanishDisfluencyGenerator.del_pos_probs = {
-    'DET': 0.27,
-    'NOUN':0.08,
-    'ADP': 0.29,
-    'CCONJ': 0.05,
-    'PRON': 0.10,
-    'AUX': 0.05
-}
+SpanishDisfluencyGenerator.ins_pos_probs={'ADJ': 0.053, 'ADP': 0.105, 'ADV': 0.013, 'AUX': 0.02, 'CCONJ': 0.026, 'DET': 0.184, 'NOUN': 0.237, 'PRON': 0.033, 'PROPN': 0.007, 'PUNCT': 0.191, 'SCONJ': 0.007, 'VERB': 0.125}
 
-SpanishDisfluencyGenerator.sub_pos_probs = {
-    'VERB':0.24,
-    'NOUN':0.24,
-    'ADJ':0.19,
-    'DET':0.11,
-    'ADP':0.08
-}
+SpanishDisfluencyGenerator.pre_pos_probs={'ADJ': 0.128, 'ADP': 0.195, 'ADV': 0.012, 'AUX': 0.041, 'CCONJ': 0.015, 'DET': 0.049, 'NOUN': 0.14, 'PRON': 0.003, 'PUNCT': 0.224, 'SCONJ': 0.009, 'VERB': 0.186}
 
-SpanishDisfluencyGenerator.ins_target_pos = {
-    'NOUN':0.28,
-    'DET':0.22,
-    'ADJ':0.02,
-    'VERB':0.12,
-    'ADP':0.07
-}   
+SpanishDisfluencyGenerator.rep_pos_probs={'ADJ': 0.035, 'ADP': 0.36, 'ADV': 0.038, 'AUX': 0.089, 'CCONJ': 0.045, 'DET': 0.172, 'NOUN': 0.131, 'PRON': 0.013, 'SCONJ': 0.025, 'VERB': 0.092}
 
-SpanishDisfluencyGenerator.ins_type_probs = {
-    'articles':0.31,
-    'prepositions': 0.23,
-    'conjunctions':0.11,
-    'disc_markers':0.10
-} 
+SpanishDisfluencyGenerator.cut_pos_probs={'ADJ': 0.167, 'NOUN': 0.333, 'PROPN': 0.167, 'VERB': 0.333}
 
-SpanishDisfluencyGenerator.cut_pos_probs = {
-    'VERB': 0.41,
-    'NOUN': 0.21,
-    'ADJ': 0.25,
-    'ADP': 0.10,
-    'DET': 0.03
-}
+SpanishDisfluencyGenerator.del_pos_probs={'ADJ': 0.065, 'ADP': 0.301, 'ADV': 0.054, 'AUX': 0.065, 'CCONJ': 0.054, 'DET': 0.269, 'NOUN': 0.065, 'PRON': 0.054, 'SCONJ': 0.043, 'VERB': 0.032}
 
-SpanishDisfluencyGenerator.rep_pos_probs = {
-    'ADP': 0.41,
-    'DET': 0.08,
-    'VERB': 0.17,
-    'AUX': 0.09,
-    'NOUN': 0.08
-}
+SpanishDisfluencyGenerator.pho_pos_probs={'ADJ': 0.074, 'ADP': 0.037, 'NOUN': 0.519, 'VERB': 0.37}
 
-SpanishDisfluencyGenerator.pre_pos_probs = {
-    'VERB': 0.25,
-    'NOUN': 0.37,
-    'ADJ': 0.12,
-    'ADP': 0.12,
-    'DET': 0.01,
-    'AUX': 0.01,
-    'PRON': 0.05,
-    'NUM': 0.05,
-    'ADV': 0.05
-}
+SpanishDisfluencyGenerator.sub_pos_probs={'ADJ': 0.22, 'ADP': 0.089, 'ADV': 0.037, 'AUX': 0.024, 'CCONJ': 0.02, 'DET': 0.122, 'NOUN': 0.191, 'PRON': 0.02, 'PROPN': 0.004, 'SCONJ': 0.033, 'VERB': 0.24}
 
-SpanishDisfluencyGenerator.disfluency_type_probs = {
-    'DEL': 0.088,  # D: 8.866545
-    'INS': 0.138,  # INS: 13.893967 
-    'PHO': 0.032,  # PHO: 3.290676
-    'PRE': 0.218,  # PRE: 21.846435
-    'CUT': 0.004,  # RC: 0.457038
-    'REP': 0.292,  # REP: 29.250457 
-    'SUB': 0.223  # S: 22.394881
-}

@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import spacy
 import random
-from src.generator import SpanishDisfluencyGenerator
+from disfluentes.generator import SpanishDisfluencyGenerator
 
 # List of common Spanish words with their POS tags
 TEST_WORDS = [

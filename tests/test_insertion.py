@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from src.generator import SpanishDisfluencyGenerator
+from disfluentes.generator import SpanishDisfluencyGenerator
 
 @pytest.fixture
 def generator():
@@ -13,7 +13,7 @@ def test_apply_insertion_with_noun(generator):
     text = "gato negro"
     doc = generator.parse_text(text)
     # Set probabilities to ensure article insertion before noun
-    generator.ins_target_pos = {'NOUN': 1.0, 'PROPN': 1.0}
+    generator.ins_pos_probs = {'NOUN': 1.0, 'PROPN': 1.0}
     generator.ins_type_probs = {'articles': 1.0}
     generator.articles = ['el', 'la', 'los', 'las', 'un', 'una', 'unas', 'unos']
     np.random.seed(42)
@@ -25,7 +25,7 @@ def test_apply_insertion_with_feminine_noun(generator):
     """Test article insertion before a feminine noun."""
     text = "casa grande"
     doc = generator.parse_text(text)
-    generator.ins_target_pos = {'NOUN': 1.0, 'PROPN': 1.0}
+    generator.ins_pos_probs = {'NOUN': 1.0, 'PROPN': 1.0}
     generator.ins_type_probs = {'articles': 1.0}
     generator.articles = ['el', 'la', 'los', 'las', 'un', 'una', 'unas', 'unos']
     np.random.seed(42)
@@ -37,7 +37,7 @@ def test_apply_insertion_preposition(generator):
     """Test preposition insertion."""
     text = "gato negro"
     doc = generator.parse_text(text)
-    generator.ins_target_pos = {'NOUN': 1.0}
+    generator.ins_pos_probs = {'NOUN': 1.0}
     generator.ins_type_probs = {'prepositions': 1.0}
     generator.prepositions = ['de']  # Fix preposition for test
     result = generator._apply_insertion(doc)
@@ -47,7 +47,7 @@ def test_apply_insertion_conjunction(generator):
     """Test conjunction insertion."""
     text = "gato negro"
     doc = generator.parse_text(text)
-    generator.ins_target_pos = {'NOUN': 1.0}
+    generator.ins_pos_probs = {'NOUN': 1.0}
     generator.ins_type_probs = {'conjunctions': 1.0}
     generator.conjunctions = {'CCONJ': ['y'], 'SCONJ': ['que']}  # Fix conjunction for test
     result = generator._apply_insertion(doc)

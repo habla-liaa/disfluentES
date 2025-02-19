@@ -29,7 +29,7 @@ SpanishDisfluencyGenerator.sub_type_probs = {
     }
 }
 
-SpanishDisfluencyGenerator.ins_target_pos = {
+SpanishDisfluencyGenerator.ins_pos_probs = {
     'NOUN': 0.25,
     'DET': 0.20,
     'ADJ': 0.15,

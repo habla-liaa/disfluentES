@@ -86,12 +86,12 @@ SpanishDisfluencyGenerator.verb_conjugation_probs = {
 
 #----------------INSERTIONS------------------------#
 
-SpanishDisfluencyGenerator.ins_target_pos = {
+SpanishDisfluencyGenerator.ins_pos_probs = {
  'DET': 0.40,
  'NOUN': 0.40,
  'VERB': 0.20}
 
-#SpanishDisfluencyGenerator.ins_target_pos = {
+#SpanishDisfluencyGenerator.ins_pos_probs = {
 # 'ADJ': 0.064,
 # 'ADP': 0.077,
 # 'ADV': 0.027,
@@ -211,5 +211,15 @@ SpanishDisfluencyGenerator.pho_pos_probs = {'ADJ': 0.18,
 
 #----------------PROPORTIONS------------------------#
 # Proportions of each type of disfluency
-#SpanishDisfluencyGenerator.disfluency_variations = ['DEL', 'INS', 'PHO', 'PRE', 'REP', 'SUB']
-SpanishDisfluencyGenerator.disfluency_variations = ['DEL', 'PRE', 'REP']
+SpanishDisfluencyGenerator.disfluency_uniform = ['DEL', 'INS', 'PHO', 'PRE', 'REP', 'SUB']
+# SpanishDisfluencyGenerator.disfluency_uniform = ['DEL', 'PRE', 'REP']
+
+SpanishDisfluencyGenerator.disfluency_type_probs = {
+    'DEL': 0.077,
+    'PHO': 0.032,
+    'SUB': 0.262,
+    'INS': 0.123,
+    'CUT': 0.048,
+    'REP': 0.278,    
+    'PRE': 0.220,
+}

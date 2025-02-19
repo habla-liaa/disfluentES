@@ -28,7 +28,7 @@ SpanishDisfluencyGenerator.ins_type_probs = {
 }
 
 # POS tag probabilities of context of insertion
-SpanishDisfluencyGenerator.ins_target_pos = {
+SpanishDisfluencyGenerator.ins_pos_probs = {
     'NOUN': 0.4,
     'ADJ': 0.3,
     'VERB': 0.2,

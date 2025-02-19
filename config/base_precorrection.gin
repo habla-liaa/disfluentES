@@ -1,0 +1,4 @@
+SpanishDisfluencyGenerator.pre_type_probs = {
+    'PRE': 0.0,
+    'CUT': 1.0,
+}

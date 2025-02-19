@@ -1,6 +1,6 @@
 import pytest
 import spacy
-from src.operations.verbs import get_mlconjug_params
+from disfluentes.operations.verbs import get_mlconjug_params
 
 # Initialize spaCy
 nlp = spacy.load('es_core_news_lg')

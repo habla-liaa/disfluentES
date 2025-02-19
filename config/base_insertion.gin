@@ -1,0 +1,7 @@
+
+SpanishDisfluencyGenerator.ins_type_probs = {
+    'articles':0.25,
+    'prepositions': 0.25,
+    'conjunctions':0.25,
+    'disc_markers':0.25
+} 

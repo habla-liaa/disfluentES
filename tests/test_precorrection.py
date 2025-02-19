@@ -1,7 +1,7 @@
 import pytest
 import spacy
 import numpy as np
-from src.generator import SpanishDisfluencyGenerator
+from disfluentes.generator import SpanishDisfluencyGenerator
 
 
 @pytest.fixture

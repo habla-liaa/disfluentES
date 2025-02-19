@@ -4,12 +4,10 @@ import random
 import spacy
 from typing import Union
 from difflib import get_close_matches
-from src.operations.utils import clean_word
-from src.operations.verbs import conjugate_verb
-from src.operations.noun_adj import to_plural, to_singular, to_masculine, to_feminine
-from src.operations.phonological import misspell_word
 from .utils import clean_word
-from IPython import embed
+from .verbs import conjugate_verb
+from .noun_adj import to_plural, to_singular, to_masculine, to_feminine
+from .phonological import misspell_word
 
 def cut_word(
     word: spacy.tokens.Doc,
@@ -35,15 +33,15 @@ def cut_word(
     else:
         num_units_to_cut = 1
 
-    if num_units_to_cut == 1 and chars and units[0] == "h" and not cut_from_start:
-        num_units_to_cut = 2
-
     if cut_from_start:
         # Cut from the beginning
         new_word = "".join(units[num_units_to_cut:])
     else:
         # Cut from the end
         new_word = "".join(units[:-num_units_to_cut])
+
+    if new_word == "h":
+        new_word = units[0:2]
 
     return new_word
 
@@ -93,9 +91,12 @@ def do_similarity(
         vector_similarity=vector_similarity,
         close_matches=close_matches,
     )
-    similar_word = random.choice(similar_words).lower()
-    
-    similar_word = clean_word(similar_word)
+    # clean similar words and remove duplicates and original word
+    similar_words = [clean_word(word) for word in similar_words]
+    similar_words = list(set(similar_words))
+    similar_words.remove(word.text.lower()) 
+
+    similar_word = random.choice(similar_words).lower()   
 
     return similar_word
 
@@ -114,9 +115,9 @@ def do_substitution(
 ) -> str:
     if word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "inflection":
         substitute = do_inflection(word, adj_inflection_probs, verb_conjugation_probs)
-    elif word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "similarity":
+    elif word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and (sub_type == "similarity" or sub_type == "nominalization"):
         substitute = do_similarity(word, nlp, **substitution_similarity_params)
-    elif word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "misspelling":
+    elif word.pos_ in ["VERB", "AUX", "NOUN", "ADJ", "ADV"] and sub_type == "misspelling":
         substitute = misspell_word(word, char_patterns)
     elif word.pos_ == "DET":
         if word.text.lower() in articles_map:
@@ -146,7 +147,8 @@ def do_substitution(
         else:
             substitute = random.choice(conjunctions["SCONJ"])
     else:
-        print("Substitution type not found for", word.pos_)
+        print("Substitution type not found for", word.pos_, "sub_type", sub_type)
+        substitute = word.text
     return substitute
 
 
@@ -159,7 +161,12 @@ def do_inflection(
 
     # If noun, change number
     if word.pos_ == "NOUN":
-        if morph["Number"] == "Sing":
+        if "Number" not in morph:
+            number = "Sing"
+            print("No number found for", word.text, morph)
+        else:
+            number = morph["Number"]
+        if number == "Sing":
             return to_plural(word.text)
         else:
             return to_singular(word.text)
@@ -182,9 +189,14 @@ def do_inflection(
                 else to_feminine(word.text)
             )
         else:
+            if "Number" not in morph:
+                number = "Sing"
+                print("No number found for", word.text, morph)
+            else:
+                number = morph["Number"]
             return (
                 to_plural(word.text)
-                if morph["Number"] == "Plur"
+                if number == "Plur"
                 else to_singular(word.text)
             )
 
@@ -213,7 +225,11 @@ def do_inflection(
             number = "Plur" if "Sing" in morph["Number"] else "Sing"
             return conjugate_verb(word, change_number=number)
         elif change_type == "change_person":
-            original_person = morph["Person"][0]
+            if "Person" not in morph:
+                original_person = "1"
+                print("No person found for", word.text, morph)
+            else:
+                original_person = morph["Person"][0]
             persons = ["1", "2", "3"]
             persons.remove(original_person)
             person = random.choice(persons)
@@ -265,7 +281,7 @@ def get_similar_words(
 
     # Get word vector neighbors from model's vocabulary
     if vector_similarity and word.has_vector:
-        ms = nlp.vocab.vectors.most_similar(word.vector[None], n=n_words)
+        ms = nlp.vocab.vectors.most_similar(word.vector[None].copy(), n=n_words)
         similar_words.update([nlp.vocab.strings[w] for w in ms[0][0]])
 
     # Add phonologically similar words

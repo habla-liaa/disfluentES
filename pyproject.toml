@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "disfluentES"
+name = "disfluentes"
 version = "0.1.0"
 description = "A Python tool for generating natural disfluencies in Spanish text"
 readme = "README.md"
@@ -36,7 +36,8 @@ dependencies = [
 ]
 
 [project.scripts]
-disfluentes = "disfluentes:main"
+disfluentes = "disfluenciate:main"
+
 
 [project.urls]
 Homepage = "https://github.com/habla-liaa/disfluentES"
@@ -44,7 +45,8 @@ Repository = "https://github.com/habla-liaa/disfluentES"
 Issues = "https://github.com/habla-liaa/disfluentES/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["disfluentes"]
+
 
 [tool.pytest.ini_options]
 addopts = "-ra -q"
