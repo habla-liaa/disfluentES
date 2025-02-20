@@ -1,8 +1,8 @@
+include "config/global_pos_probs.gin"
 include "config/base_words.gin"
 include "config/base_substitution.gin"
 include "config/base_insertion.gin"
 include "config/base_repetition.gin"
-include "config/global_pos_probs.gin"
 
 SpanishDisfluencyGenerator.disfluency_uniform=['REP', 'PRE', 'DEL', 'INS', 'SUB']
 

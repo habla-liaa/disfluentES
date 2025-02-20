@@ -19,8 +19,12 @@ SpanishDisfluencyGenerator.articles_map = {
                     'los': ['lo','unos','las'],
                     'las': ['unas','los','la'],
                     'unas': ['las','un','la', 'unos'],
-                    'unos': ['los','un','unas']
-                }
+                    'unos': ['los','un','unas'],
+                    'alguno': ['algunas', 'algunos', 'alguna'],
+                    'algunas': ['alguno', 'algunos', 'alguna'],
+                    'algunos': ['alguno', 'algunas', 'alguna'],
+                    'alguna': ['alguno', 'algunas', 'algunos']                    
+}
 
 SpanishDisfluencyGenerator.char_patterns = {
     'substitutions': {

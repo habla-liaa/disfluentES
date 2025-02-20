@@ -1,14 +1,18 @@
 """Phonological operations for Spanish disfluency generation."""
 
 import random
+from IPython import embed
 import spacy
+import silabeador
 
 
-def misspell_word(word: spacy.tokens.Doc, char_patterns: dict) -> str:
+def misspell_word(word: spacy.tokens.Token, char_patterns: dict) -> str:
     """Misspell a word based on phonological patterns.
     Split the word into syllables and randomly misspell one or two syllables using one or two of the following functions: substitute_char, insert_char, and delete_char.
     """
-    syllables = word._.syllables
+
+    syllables = silabeador.syllabify(word.text)
+
     if not syllables:
         return word.text
     

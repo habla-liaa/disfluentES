@@ -9,7 +9,7 @@ import gin
 from typing import Optional, Dict, List, Union, Set
 from .operations import phonological, spacy_es_wrong_pos, default_char_patterns
 from .operations import text as text_ops
-from spacy_syllables import SpacySyllables
+# from spacy_syllables import SpacySyllables
 
 
 @gin.configurable
@@ -75,7 +75,7 @@ class SpanishDisfluencyGenerator:
         """
         try:
             self.nlp = spacy.load("es_core_news_lg")
-            self.nlp.add_pipe("syllables", after="ner")
+            # self.nlp.add_pipe("syllables", after="ner")
         except OSError:
             raise OSError(
                 "Please install Spanish language model: python -m spacy download es_core_news_lg"
@@ -168,7 +168,7 @@ class SpanishDisfluencyGenerator:
                     result_text = self._apply_disfluency(disfluency, doc)
                     doc = self.nlp(result_text)
                 results.append(result_text)
-        else:
+        elif self.disfluency_type_probs:
             # Random mode: choose disfluencies based on probabilities
             doc_original = copy.deepcopy(doc)
             for _ in range(num_variations):
@@ -181,6 +181,7 @@ class SpanishDisfluencyGenerator:
                             list(self.disfluency_type_probs.keys()),
                             weights=list(self.disfluency_type_probs.values()),
                         )[0]
+
                         # done = False
                         # while not done:
                             # try:
@@ -197,6 +198,9 @@ class SpanishDisfluencyGenerator:
                             #     )
                             #     pass
                     results.append(result_text)
+
+        else:
+            raise ValueError("No disfluency setting provided")
 
         return results
 
@@ -501,11 +505,13 @@ class SpanishDisfluencyGenerator:
             list(self.pre_type_probs.keys()), weights=list(self.pre_type_probs.values())
         )[0]
 
+
         # Weight by POS probability
         weights = [self.pre_pos_probs[token.pos_] for _, token in candidates]
         idx, token = random.choices(candidates, weights=weights)[0]
 
         words = text.split()
+
         if pre_type == "CUT":
             words.insert(
                 idx, text_ops.cut_word(token, cut_from_start=False, chars=True)
@@ -537,6 +543,11 @@ class SpanishDisfluencyGenerator:
             except:
                 print("Precorrection substitution failed for", token)
                 pass
+
+        try:
+            " ".join(words)
+        except:
+            embed()
 
         return " ".join(words)
 

@@ -1,6 +1,8 @@
 """Text operations for Spanish disfluency generation."""
 
+import copy
 import random
+from IPython import embed
 import spacy
 from typing import Union
 from difflib import get_close_matches
@@ -8,6 +10,7 @@ from .utils import clean_word
 from .verbs import conjugate_verb
 from .noun_adj import to_plural, to_singular, to_masculine, to_feminine
 from .phonological import misspell_word
+import silabeador
 
 def cut_word(
     word: spacy.tokens.Doc,
@@ -19,7 +22,10 @@ def cut_word(
     if chars:
         units = list(word.text)
     else:
-        units = word._.syllables
+        units = silabeador.syllabify(word.text)
+        if units[0] not in word.text:
+            print("cut_word syllables", units, word.text)
+            embed()
 
     if not units:
         return str(word)  # Return the original word if no syllables are found
@@ -41,7 +47,7 @@ def cut_word(
         new_word = "".join(units[:-num_units_to_cut])
 
     if new_word == "h":
-        new_word = units[0:2]
+        new_word = ''.join(units[0:2])
 
     return new_word
 
@@ -100,9 +106,13 @@ def do_similarity(
 
     return similar_word
 
+# TODO Put elsewhere
+pronouns_interrogative = ["qué", "cómo", "cuándo", "dónde"]
+conj_adv = ["que", "como", "cuando", "donde", "porque"]
+rescue_words = ["muchas", "mucho", "mucho", "mucha", "muchos", "muchos", "muchos", "muchos", ]
 
 def do_substitution(
-    word: spacy.tokens.Doc,
+    word: spacy.tokens.Token,
     sub_type: str,
     nlp: spacy.language.Language,
     adj_inflection_probs: dict,
@@ -113,13 +123,21 @@ def do_substitution(
     prepositions: list,
     conjunctions: dict,
 ) -> str:
-    if word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and sub_type == "inflection":
-        substitute = do_inflection(word, adj_inflection_probs, verb_conjugation_probs)
+    if word.text.lower() in pronouns_interrogative:
+        copy_pronouns_interrogative = copy.deepcopy(pronouns_interrogative)
+        copy_pronouns_interrogative.remove(word.text.lower())
+        substitute = random.choice(copy_pronouns_interrogative)
+    elif word.text.lower() in conj_adv:
+        copy_conj_adv = copy.deepcopy(conj_adv)
+        copy_conj_adv.remove(word.text.lower())
+        substitute = random.choice(conj_adv)
+    elif (word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] or word.text.lower() in rescue_words) and sub_type == "inflection":
+        substitute = do_inflection(word, adj_inflection_probs, verb_conjugation_probs)        
     elif word.pos_ in ["VERB", "AUX", "NOUN", "ADJ"] and (sub_type == "similarity" or sub_type == "nominalization"):
         substitute = do_similarity(word, nlp, **substitution_similarity_params)
-    elif word.pos_ in ["VERB", "AUX", "NOUN", "ADJ", "ADV"] and sub_type == "misspelling":
+    elif word.pos_ in (["VERB", "AUX", "NOUN", "ADJ", "ADV"] or word.text.lower() in rescue_words) and sub_type == "misspelling":        
         substitute = misspell_word(word, char_patterns)
-    elif word.pos_ == "DET":
+    elif word.pos_ in ["DET", "PRON"]:
         if word.text.lower() in articles_map:
             substitute = random.choice(articles_map[word.text.lower()])
         else:
@@ -160,7 +178,7 @@ def do_inflection(
     morph = word.morph.to_dict()
 
     # If noun, change number
-    if word.pos_ == "NOUN":
+    if word.pos_ == "NOUN" or word.text.lower() in rescue_words:
         if "Number" not in morph:
             number = "Sing"
             print("No number found for", word.text, morph)
@@ -170,6 +188,28 @@ def do_inflection(
             return to_plural(word.text)
         else:
             return to_singular(word.text)
+        
+    if word.pos_ == "PRON":
+        change_gender_or_number = random.choices(
+                list(adj_inflection_probs.keys()), weights=adj_inflection_probs.values()
+            )[0]
+        if change_gender_or_number == "gender":
+            if word.text == "el":
+                return "la"
+            elif word.text == "la":
+                return "el"
+            elif word.text == "los":
+                return "las"
+            elif word.text == "las":
+                return "los"
+            elif word.text == "un":
+                return "una"
+            elif word.text == "una":
+                return "un"
+            else:
+                return word.text
+        else:
+            return word.text
 
     if word.pos_ == "ADJ":
 
@@ -241,8 +281,10 @@ def do_inflection(
             return conjugate_verb(word, change_mood="Sub")
         elif change_type == "infinitive":
             return str(word.lemma_)
+        else:
+            print("Inflection type not found for", word.text, morph)
+            return word.text
 
-    print("Inflection type not found for", word.text, morph)
 
 
 def insert_article(
